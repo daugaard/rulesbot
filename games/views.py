@@ -1,7 +1,27 @@
-from django.http import HttpResponse
-from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
+from django.views import generic
 
-# Create your views here.
+from games.models import Game
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the games index.")
+
+class IndexView(generic.ListView):
+    template_name = "games/index.html"
+    context_object_name = "games"
+
+    def get_queryset(self):
+        """Return the last five published questions."""
+        return Game.objects.order_by("-created_at")[:5]
+
+class DetailView(generic.DetailView):
+    model = Game
+    template_name = "games/detail.html"
+
+
+def ingest(request, game_id):
+    game = get_object_or_404(Game, pk=game_id)
+    game.ingested = True
+    game.save()
+
+    return HttpResponseRedirect(reverse("games:detail", args=(game_id,)))
