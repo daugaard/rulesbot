@@ -12,7 +12,7 @@ class IndexView(generic.ListView):
 
     def get_queryset(self):
         """Return the last five published questions."""
-        return Game.objects.order_by("-created_at")[:5]
+        return Game.objects.order_by("-created_at")
 
 class DetailView(generic.DetailView):
     model = Game
