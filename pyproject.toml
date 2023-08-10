@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "rulesbot"
+version = "0.1.0"
+description = ""
+authors = ["Søren Blond Daugaard <soren@practicalai.io>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+Django = "^4.2.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
