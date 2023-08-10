@@ -37,6 +37,21 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-enumfield"
+version = "3.1"
+description = "Custom Django field for using enumerations of named constants"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "django-enumfield-3.1.tar.gz", hash = "sha256:abbb361507ad481bb2ef50a86ee4dc9ec770adbbabbe53c1242815defbf81889"},
+    {file = "django_enumfield-3.1-py2.py3-none-any.whl", hash = "sha256:e6a9e14f3a7cfbf15a14f3809117eacd9c0c4257e1730030f22ae07cd1793bbd"},
+]
+
+[package.extras]
+dev = ["Django", "black", "django-stubs", "djangorestframework-stubs", "isort", "mypy"]
+
+[[package]]
 name = "sqlparse"
 version = "0.4.4"
 description = "A non-validating SQL parser."
@@ -68,4 +83,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "3b66090ae01273f29e7d45f83313ca669e6d4d4d1462ba9e58d23acd91da67f6"
+content-hash = "1c1487538a0ad4855f1fe9cdab8c8859c59afca9aa7f01837e3bd82b8ab70b3e"
