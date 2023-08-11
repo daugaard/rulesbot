@@ -1,5 +1,6 @@
-import enum
 from django.db import models
+
+from games.vectorstores import GameVectorStore
 
     
 
@@ -10,8 +11,13 @@ class Game(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    vector_store_binary = models.BinaryField(null=True)
+
     def __str__(self):
         return f"{self.name}"
+    
+    def vector_store(self):
+        return GameVectorStore(self)
 
 
 class Document(models.Model):

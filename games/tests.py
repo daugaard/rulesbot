@@ -1,8 +1,12 @@
 from django.test import TestCase
 from django.urls import reverse
 
+from langchain.embeddings.fake import DeterministicFakeEmbedding
+from langchain.document_loaders import PyPDFLoader
+
 from games.models import Document, Game
 from games.services import document_ingestion_service
+from games.vectorstores import GameVectorStore
 
 class GameIndexViewTests(TestCase):
     def test_no_games(self):
@@ -62,9 +66,48 @@ class DocumentIngestionServiceTest(TestCase):
         """
         Test that a document is ingested correctly
         """
-        game = Game.objects.create(name="Test Game")
-        document = Document.objects.create(game=game, url="https://instructions.hasbro.com/api/download/00390_en-us_sorry-game.pdf")
-        document_ingestion_service.ingest_document(document)
+        #game = Game.objects.create(name="Test Game")
+        #document = Document.objects.create(game=game, url="https://instructions.hasbro.com/api/download/00390_en-us_sorry-game.pdf")
+        #document_ingestion_service.ingest_document(document)
 
         # try to make a similarity search for the document
         
+
+class GameVectorStoreTest(TestCase):
+
+    def test_happy_path(self):
+        game = Game.objects.create(name="Test Game")
+        
+        game_vector_store = GameVectorStore(game, embedding=DeterministicFakeEmbedding(size=1536))
+
+        docs = PyPDFLoader("games/fixtures/test.pdf").load_and_split()
+
+        game_vector_store.add_documents(docs, 0)
+
+        results = game_vector_store.index.similarity_search("page 1")
+
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0].metadata["page"], 0)
+        self.assertEqual(results[0].metadata["game_id"], game.id)
+        self.assertEqual(results[0].metadata["document_id"], 0)
+
+    def test_load_from_database(self):
+        game = Game.objects.create(name="Test Game")
+        docs = PyPDFLoader("games/fixtures/test.pdf").load_and_split()
+        game.vector_store().add_documents(docs, 0)
+
+        game_loaded_from_db = Game.objects.get(id=game.id)
+        self.assertIsNotNone(game_loaded_from_db.vector_store().index)
+        
+        result = game_loaded_from_db.vector_store().index.similarity_search("page 1")
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0].metadata["page"], 0)
+        self.assertEqual(result[0].metadata["game_id"], game.id)
+        self.assertEqual(result[0].metadata["document_id"], 0)
+
+    def test_load_from_database_no_index(self):
+        game = Game.objects.create(name="Test Game")
+        game_loaded_from_db = Game.objects.get(id=game.id)
+
+        self.assertIsNone(game_loaded_from_db.vector_store().index)

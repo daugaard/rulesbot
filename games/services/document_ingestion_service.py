@@ -4,7 +4,6 @@ from urllib import request
 from pypdf import PdfReader
 from langchain.document_loaders import PyPDFLoader
 
-from games.services.vector_store_service import get_vector_store
 
 def ingest_document(document):
     """
@@ -29,7 +28,8 @@ def ingest_document(document):
             section.metadata["document_id"] = document.id
 
         # Add to vector store
-        get_vector_store().add_documents(sections)
+        # TODO add
+
 
 
 def _download_to_file(url, file):
