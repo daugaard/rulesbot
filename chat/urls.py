@@ -3,9 +3,9 @@ from django.urls import path
 from . import views
 
 
-app_name = "games"
+app_name = "chats"
 urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
-    # ex: /games/5/
-    path("<int:pk>/", views.DetailView.as_view(), name="detail"),
+    # ex: /chats/5/
+    path("<int:game_id>/", views.chat_view, name="chat"),
 ]
