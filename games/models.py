@@ -16,6 +16,7 @@ class Game(models.Model):
     def __str__(self):
         return f"{self.name}"
     
+    @property
     def vector_store(self):
         return GameVectorStore(self)
 

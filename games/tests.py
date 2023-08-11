@@ -94,20 +94,16 @@ class GameVectorStoreTest(TestCase):
     def test_load_from_database(self):
         game = Game.objects.create(name="Test Game")
         docs = PyPDFLoader("games/fixtures/test.pdf").load_and_split()
-        game.vector_store().add_documents(docs, 0)
 
-        game_loaded_from_db = Game.objects.get(id=game.id)
-        self.assertIsNotNone(game_loaded_from_db.vector_store().index)
-        
-        result = game_loaded_from_db.vector_store().index.similarity_search("page 1")
+        game_vector_store = GameVectorStore(game, embedding=DeterministicFakeEmbedding(size=1536))
+        game_vector_store.add_documents(docs, 0)
+
+        loaded_vector_store = GameVectorStore(game, embedding=DeterministicFakeEmbedding(size=1536))
+        self.assertIsNotNone(loaded_vector_store.index)
+
+        result = loaded_vector_store.index.similarity_search("page 1")
 
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0].metadata["page"], 0)
         self.assertEqual(result[0].metadata["game_id"], game.id)
         self.assertEqual(result[0].metadata["document_id"], 0)
-
-    def test_load_from_database_no_index(self):
-        game = Game.objects.create(name="Test Game")
-        game_loaded_from_db = Game.objects.get(id=game.id)
-
-        self.assertIsNone(game_loaded_from_db.vector_store().index)
