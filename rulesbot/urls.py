@@ -17,7 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+from chat import views as chat_views
+
 urlpatterns = [
+    path("", chat_views.IndexView.as_view(), name="index"),
     path("games/", include("games.urls")),
     path("chat/", include("chat.urls")),
     path("admin/", admin.site.urls),
