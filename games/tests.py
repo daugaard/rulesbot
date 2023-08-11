@@ -39,7 +39,7 @@ class GameIndexViewTests(TestCase):
         games.reverse()
         self.assertQuerysetEqual(response.context["games"], games)
 
-    ## TODO: When we get there make sure non-ingested games are not displayed
+    # TODO: When we get there make sure non-ingested games are not displayed
 
 
 class GameDetailViewTests(TestCase):
@@ -60,7 +60,7 @@ class GameDetailViewTests(TestCase):
         self.assertContains(response, "Test Game")
         self.assertEqual(response.context["game"], game)
 
-    ## TODO: When we get there make sure non-ingested games are not displayed
+    # TODO: When we get there make sure non-ingested games are not displayed
 
 
 class DocumentIngestionServiceTest(TestCase):
