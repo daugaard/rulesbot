@@ -10,5 +10,5 @@ Ingested: {{ game.ingested }}
 
 <form action="{% url 'games:ingest' game.id %}" method="post">
     {% csrf_token %}
-    <input type="submit" value="Ingest">  
+    <input type="submit" value="Ingest">
 </form>

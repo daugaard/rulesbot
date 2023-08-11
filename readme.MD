@@ -1,10 +1,10 @@
 # RulesBot
-AI powered boardgame rules bot. 
+AI powered boardgame rules bot.
 
 ## Setup
 
 ```
-poetry install 
+poetry install
 
 poetry shell # start a shell so you don't have to poetry run everything
 

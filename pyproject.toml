@@ -17,6 +17,7 @@ faiss-cpu = "^1.7.4"
 
 [tool.poetry.group.dev.dependencies]
 coverage = "^7.2.7"
+pre-commit = "^3.3.3"
 
 [build-system]
 requires = ["poetry-core"]

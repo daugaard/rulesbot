@@ -2,7 +2,6 @@ from django.db import models
 
 from games.vectorstores import GameVectorStore
 
-    
 
 class Game(models.Model):
     name = models.CharField(max_length=500)
@@ -15,11 +14,11 @@ class Game(models.Model):
 
     def __str__(self):
         return f"{self.name}"
-    
+
     @property
     def vector_store(self):
         return GameVectorStore(self)
-    
+
     @property
     def vector_store_binary_size(self):
         return len(self.vector_store_binary) if self.vector_store_binary else 0

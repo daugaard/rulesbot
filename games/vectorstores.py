@@ -5,29 +5,32 @@ from langchain.vectorstores import FAISS
 
 EMBEDDING_LENGTH = 1536
 
-DEFAULT_EMBEDDING = DeterministicFakeEmbedding(size=1536) if settings.TESTING else OpenAIEmbeddings()
+DEFAULT_EMBEDDING = (
+    DeterministicFakeEmbedding(size=1536) if settings.TESTING else OpenAIEmbeddings()
+)
 
-class GameVectorStore():
-    """
-    A vector store for a specific game. 
 
-    This vector store will have all the game documents loaded and stored along side the game record in the database. 
+class GameVectorStore:
     """
+    A vector store for a specific game.
+
+    This vector store will have all the game documents loaded and stored along side the game record in the database.
+    """
+
     def __init__(self, game, embedding=None):
         self.game = game
-    
+
         if embedding is None:
             embedding = DEFAULT_EMBEDDING
         self.embedding = embedding
         self.index = self._try_load_game_index()
-        
 
     def add_documents(self, documents, document_id):
         """
         Add documents to the vector store
 
         Note:
-            Document is a an overloaded terms here. Documents represents the sections of a document as a langchain Document. 
+            Document is a an overloaded terms here. Documents represents the sections of a document as a langchain Document.
             document_id referes to the document_id of the game document the sections belong to.
         """
         for document in documents:
@@ -48,14 +51,15 @@ class GameVectorStore():
         """
         self.game.vector_store_binary = self.index.serialize_to_bytes()
         self.game.save()
-        
 
     def _try_load_game_index(self):
         """
         Try to load the game table from the database
         """
         if self.game.vector_store_binary is not None:
-            return FAISS.deserialize_from_bytes(self.game.vector_store_binary, self.embedding)
+            return FAISS.deserialize_from_bytes(
+                self.game.vector_store_binary, self.embedding
+            )
         else:
             return None
 

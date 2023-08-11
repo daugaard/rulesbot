@@ -14,6 +14,7 @@ class IndexView(generic.ListView):
         """Return the last five published questions."""
         return Game.objects.order_by("-created_at")
 
+
 class DetailView(generic.DetailView):
     model = Game
     template_name = "games/detail.html"

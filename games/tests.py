@@ -9,6 +9,7 @@ from games.models import Document, Game
 from games.services.document_ingestion_service import ingest_document
 from games.vectorstores import GameVectorStore
 
+
 class GameIndexViewTests(TestCase):
     def test_no_games(self):
         """
@@ -18,7 +19,7 @@ class GameIndexViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "No games are available.")
         self.assertQuerysetEqual(response.context["games"], [])
-    
+
     def test_one_game(self):
         """
         If one game exists, it is displayed.
@@ -29,7 +30,7 @@ class GameIndexViewTests(TestCase):
         self.assertContains(response, "Test Game")
         self.assertQuerysetEqual(response.context["games"], [game])
 
-    def test_many_games(self):        
+    def test_many_games(self):
         games = [Game.objects.create(name=f"Test Game {i}") for i in range(10)]
         response = self.client.get(reverse("games:index"))
         self.assertEqual(response.status_code, 200)
@@ -39,6 +40,7 @@ class GameIndexViewTests(TestCase):
         self.assertQuerysetEqual(response.context["games"], games)
 
     ## TODO: When we get there make sure non-ingested games are not displayed
+
 
 class GameDetailViewTests(TestCase):
     def test_no_game(self):
@@ -62,7 +64,6 @@ class GameDetailViewTests(TestCase):
 
 
 class DocumentIngestionServiceTest(TestCase):
-
     def test_ingest_document(self):
         """
         Test that a document is ingested correctly
@@ -71,8 +72,12 @@ class DocumentIngestionServiceTest(TestCase):
         document = Document.objects.create(game=game, url="some-url")
 
         # Patch / mock document ingestion._download_to_file and replace it with a function that returns a file with the contents of the test.pdf file
-        with mock.patch("games.services.document_ingestion_service._download_to_file") as _download_to_file_mock:
-            _download_to_file_mock.side_effect = lambda _, file: shutil.copyfile("games/fixtures/test.pdf", file.name)
+        with mock.patch(
+            "games.services.document_ingestion_service._download_to_file"
+        ) as _download_to_file_mock:
+            _download_to_file_mock.side_effect = lambda _, file: shutil.copyfile(
+                "games/fixtures/test.pdf", file.name
+            )
             ingest_document(document)
 
         # try to make a similarity search for the document
@@ -85,12 +90,10 @@ class DocumentIngestionServiceTest(TestCase):
         self.assertTrue("Page\n1" in results[0].page_content)
 
 
-
 class GameVectorStoreTest(TestCase):
-
     def test_happy_path(self):
         game = Game.objects.create(name="Test Game")
-        
+
         game_vector_store = GameVectorStore(game)
 
         docs = PyPDFLoader("games/fixtures/test.pdf").load_and_split()

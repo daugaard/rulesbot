@@ -28,9 +28,12 @@ def ingest_document(document):
     document.ingested = True
     document.save()
 
+
 def _download_to_file(url, file):
-    # Pretend to be a recent chrome 
-    headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"}
+    # Pretend to be a recent chrome
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
+    }
     r = requests.get(url, headers=headers)
     file.write(r.content)
     file.flush()
@@ -46,7 +49,7 @@ def _valid_pdf(filename):
         return True
     except:
         return False
-    
+
 
 def _load_and_split(filename):
     loader = PyPDFLoader(filename)
