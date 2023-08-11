@@ -1,11 +1,12 @@
+import shutil
+from unittest import mock
 from django.test import TestCase
 from django.urls import reverse
 
-from langchain.embeddings.fake import DeterministicFakeEmbedding
 from langchain.document_loaders import PyPDFLoader
 
 from games.models import Document, Game
-from games.services import document_ingestion_service
+from games.services.document_ingestion_service import ingest_document
 from games.vectorstores import GameVectorStore
 
 class GameIndexViewTests(TestCase):
@@ -66,19 +67,31 @@ class DocumentIngestionServiceTest(TestCase):
         """
         Test that a document is ingested correctly
         """
-        #game = Game.objects.create(name="Test Game")
-        #document = Document.objects.create(game=game, url="https://instructions.hasbro.com/api/download/00390_en-us_sorry-game.pdf")
-        #document_ingestion_service.ingest_document(document)
+        game = Game.objects.create(name="Test Game")
+        document = Document.objects.create(game=game, url="some-url")
+
+        # Patch / mock document ingestion._download_to_file and replace it with a function that returns a file with the contents of the test.pdf file
+        with mock.patch("games.services.document_ingestion_service._download_to_file") as _download_to_file_mock:
+            _download_to_file_mock.side_effect = lambda _, file: shutil.copyfile("games/fixtures/test.pdf", file.name)
+            ingest_document(document)
 
         # try to make a similarity search for the document
-        
+        results = game.vector_store.index.similarity_search("page 1")
+
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0].metadata["page"], 0)
+        self.assertEqual(results[0].metadata["game_id"], game.id)
+        self.assertEqual(results[0].metadata["document_id"], document.id)
+        self.assertTrue("Page\n1" in results[0].page_content)
+
+
 
 class GameVectorStoreTest(TestCase):
 
     def test_happy_path(self):
         game = Game.objects.create(name="Test Game")
         
-        game_vector_store = GameVectorStore(game, embedding=DeterministicFakeEmbedding(size=1536))
+        game_vector_store = GameVectorStore(game)
 
         docs = PyPDFLoader("games/fixtures/test.pdf").load_and_split()
 
@@ -95,10 +108,10 @@ class GameVectorStoreTest(TestCase):
         game = Game.objects.create(name="Test Game")
         docs = PyPDFLoader("games/fixtures/test.pdf").load_and_split()
 
-        game_vector_store = GameVectorStore(game, embedding=DeterministicFakeEmbedding(size=1536))
+        game_vector_store = GameVectorStore(game)
         game_vector_store.add_documents(docs, 0)
 
-        loaded_vector_store = GameVectorStore(game, embedding=DeterministicFakeEmbedding(size=1536))
+        loaded_vector_store = GameVectorStore(game)
         self.assertIsNotNone(loaded_vector_store.index)
 
         result = loaded_vector_store.index.similarity_search("page 1")

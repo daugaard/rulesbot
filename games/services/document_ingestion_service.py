@@ -1,8 +1,8 @@
 import tempfile
-from urllib import request
 
 from pypdf import PdfReader
 from langchain.document_loaders import PyPDFLoader
+import requests
 
 
 def ingest_document(document):
@@ -22,18 +22,16 @@ def ingest_document(document):
         # TODO: Find a better way of splitting the PDF, this is problematic for sections that span multiple pages
         sections = _load_and_split(file.name)
 
-        # Add game_id and document_id to each section
-        for section in sections:
-            section.metadata["game_id"] = document.game.id
-            section.metadata["document_id"] = document.id
-
         # Add to vector store
-        # TODO add
+        document.game.vector_store.add_documents(sections, document.id)
 
-
+    document.ingested = True
+    document.save()
 
 def _download_to_file(url, file):
-    r = request.get(url)
+    # Pretend to be a recent chrome 
+    headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"}
+    r = requests.get(url, headers=headers)
     file.write(r.content)
     file.flush()
     file.seek(0)

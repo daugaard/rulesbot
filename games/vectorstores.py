@@ -1,7 +1,11 @@
+from django.conf import settings
 from langchain.embeddings import OpenAIEmbeddings
+from langchain.embeddings.fake import DeterministicFakeEmbedding
 from langchain.vectorstores import FAISS
 
 EMBEDDING_LENGTH = 1536
+
+DEFAULT_EMBEDDING = DeterministicFakeEmbedding(size=1536) if settings.TESTING else OpenAIEmbeddings()
 
 class GameVectorStore():
     """
@@ -13,7 +17,7 @@ class GameVectorStore():
         self.game = game
     
         if embedding is None:
-            embedding = OpenAIEmbeddings()
+            embedding = DEFAULT_EMBEDDING
         self.embedding = embedding
         self.index = self._try_load_game_index()
         

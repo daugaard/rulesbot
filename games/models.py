@@ -19,6 +19,10 @@ class Game(models.Model):
     @property
     def vector_store(self):
         return GameVectorStore(self)
+    
+    @property
+    def vector_store_binary_size(self):
+        return len(self.vector_store_binary) if self.vector_store_binary else 0
 
 
 class Document(models.Model):

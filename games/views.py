@@ -17,11 +17,3 @@ class IndexView(generic.ListView):
 class DetailView(generic.DetailView):
     model = Game
     template_name = "games/detail.html"
-
-
-def ingest(request, game_id):
-    game = get_object_or_404(Game, pk=game_id)
-    game.ingested = True
-    game.save()
-
-    return HttpResponseRedirect(reverse("games:detail", args=(game_id,)))
