@@ -26,6 +26,10 @@ class GameAdmin(admin.ModelAdmin):
     @admin.action(description="Ingest game documents")
     def ingest_documents(self, request, queryset):
         for game in queryset:
+            # clear the vector store
+            game.vector_store_binary = None
+            game.save()
+            # ingest the documents
             for document in game.document_set.all():
                 ingest_document(document)
             game.ingested = True

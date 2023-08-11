@@ -1,8 +1,9 @@
 import tempfile
+import requests
 
 from pypdf import PdfReader
 from langchain.document_loaders import PyPDFLoader
-import requests
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 
 def ingest_document(document):
@@ -53,4 +54,9 @@ def _valid_pdf(filename):
 
 def _load_and_split(filename):
     loader = PyPDFLoader(filename)
-    return loader.load_and_split()
+    pages = loader.load_and_split()
+    # At this point we have split the pdf into pages, but they can often be too large to send to the model so lets split into smaller chunks
+    sections = RecursiveCharacterTextSplitter(
+        chunk_size=1000, chunk_overlap=100
+    ).split_documents(pages)
+    return sections

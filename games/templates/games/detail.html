@@ -7,8 +7,3 @@ Ingested: {{ game.ingested }}
         <li>{{ document.display_name }} at {{document.url}}</li>
     {% endfor %}
 </ul>
-
-<form action="{% url 'games:ingest' game.id %}" method="post">
-    {% csrf_token %}
-    <input type="submit" value="Ingest">
-</form>
