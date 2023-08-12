@@ -6,6 +6,9 @@ from . import views
 app_name = "chats"
 urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
-    # ex: /chats/5/
-    path("<int:game_id>/", views.chat_view, name="chat"),
+    path("sessions/", views.SessionIndexView.as_view(), name="sessions"),
+    path(
+        "create/<int:game_id>/", views.create_chat_session, name="create_chat_session"
+    ),
+    path("<str:session_slug>", views.view_chat_session, name="view_chat_session"),
 ]

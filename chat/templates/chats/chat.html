@@ -1,28 +1,21 @@
-<h1>Ask questions about {{game.name}}</h1>
+<h1>Ask questions about {{chat_session.game.name}}</h1>
 Documents referenced in this chat:
 <ul>
-    {% for document in game.document_set.all %}
+    {% for document in chat_session.game.document_set.all %}
         <li>{{ document.display_name }} - <a href="{{ document.url }}" target="_new">Download</a></li>
     {% endfor %}
 </ul>
 
-{% if question %}
-<h2>Question:</h2>
-<div>
-    {{question}}
-</div>
-{% endif %}
-
-{% if answer %}
-<h2>Answer:</h2>
-<div>
-    {{answer}}
-</div>
-{% endif %}
+<h2>Chat</h2>
+{% for message in chat_session.message_set.all %}
+    {% if message.message_type != 'system' %}
+        <p>{{ message.message_type}}</p>
+        <p>{{ message.message }}</p>
+    {% endif %}
+{% endfor %}
 
 
-<h2>Ask a question</h2>
-<form action="{% url 'chats:chat' game.id %}" method="post">
+<form action="{% url 'chats:view_chat_session' chat_session.session_slug %}" method="post">
     {% csrf_token %}
     {{form}}
     <input type="submit" value="Ask">
