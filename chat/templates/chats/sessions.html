@@ -1,5 +1,0 @@
-<ul>
-{% for session in chat_sessions %}
-    <li><a href="{% url 'chats:view_chat_session' session.session_slug %}">Chat on {{session.updated}} about {{session.game.name}}</a></li>
-{% endfor %}
-</ul>

@@ -1,0 +1,11 @@
+{% if games %}
+    <ul>
+    {% for game in games %}
+        <li>Ask rulesbot questions about <a href="{% url 'chat:create_chat_session' game.id %}">{{ game.name }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No games are available.</p>
+{% endif %}
+
+<a href="{% url 'chat:sessions' %}">All sessions</a>

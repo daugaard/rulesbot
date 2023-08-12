@@ -15,7 +15,7 @@ Documents referenced in this chat:
 {% endfor %}
 
 
-<form action="{% url 'chats:view_chat_session' chat_session.session_slug %}" method="post">
+<form action="{% url 'chat:view_chat_session' chat_session.session_slug %}" method="post">
     {% csrf_token %}
     {{form}}
     <input type="submit" value="Ask">
