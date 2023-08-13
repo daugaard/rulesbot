@@ -10,8 +10,8 @@ class ChatSession(models.Model):
         Game, on_delete=models.DO_NOTHING
     )  # Do not delete the session if the game is deleted
 
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     # on create generate a unique session slug
     def save(self, *args, **kwargs):
@@ -28,8 +28,8 @@ class Message(models.Model):
         max_length=10, choices=MESSAGE_TYPES, default="human"
     )
 
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ("created",)
+        ordering = ("updated_at",)

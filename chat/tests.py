@@ -1,5 +1,9 @@
+from unittest import mock
 from django.test import TestCase
 from django.urls import reverse
+from chat.models import ChatSession
+from chat.services.question_answering_service import _get_chat_history, ask_question
+from langchain.schema.messages import AIMessage, HumanMessage
 
 from games.models import Game
 
@@ -19,4 +23,83 @@ class CreateChatSessionViewTests(TestCase):
         game = Game.objects.create(name="Test Game")
         response = self.client.get(reverse("chat:create_chat_session", args=(game.id,)))
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, f"/chats/{game.chat_session.session_slug}")
+        chat_session = game.chatsession_set.first()
+        self.assertEqual(response.url, f"/chat/{chat_session.session_slug}")
+
+
+class QuestionAnsweringServiceTests(TestCase):
+    def test__get_chat_history_empty(self):
+        game = Game.objects.create(name="Test Game")
+        chat_session = ChatSession.objects.create(game=game)
+
+        history = _get_chat_history(chat_session)
+
+        self.assertEqual(history, [])
+
+    def test__get_chat_history_few_messages(self):
+        game = Game.objects.create(name="Test Game")
+        chat_session = ChatSession.objects.create(game=game)
+
+        chat_session.message_set.create(message="Hello", message_type="human")
+        chat_session.message_set.create(message="Hi", message_type="ai")
+
+        history = _get_chat_history(chat_session)
+
+        self.assertEqual(len(history), 2)
+        self.assertEqual(history[0].content, "Hello")
+        assert isinstance(history[0], HumanMessage)
+        self.assertEqual(history[1].content, "Hi")
+        assert isinstance(history[1], AIMessage)
+
+    def test__get_chat_histry_many_messages(self):
+        game = Game.objects.create(name="Test Game")
+        chat_session = ChatSession.objects.create(game=game)
+
+        for i in range(20):
+            chat_session.message_set.create(
+                message=f"Message {i}", message_type="human"
+            )
+            chat_session.message_set.create(message=f"Message {i}", message_type="ai")
+
+        history = _get_chat_history(chat_session)
+
+        max_messages = 8
+        self.assertEqual(len(history), max_messages)  # max 8 messages
+
+        self.assertEqual(history[0].content, "Message 16")
+        assert isinstance(history[0], HumanMessage)
+        self.assertEqual(history[1].content, "Message 16")
+        assert isinstance(history[1], AIMessage)
+        self.assertEqual(history[2].content, "Message 17")
+        assert isinstance(history[2], HumanMessage)
+        self.assertEqual(history[3].content, "Message 17")
+        assert isinstance(history[3], AIMessage)
+        self.assertEqual(history[4].content, "Message 18")
+        assert isinstance(history[4], HumanMessage)
+        self.assertEqual(history[5].content, "Message 18")
+        assert isinstance(history[5], AIMessage)
+        self.assertEqual(history[6].content, "Message 19")
+        assert isinstance(history[6], HumanMessage)
+        self.assertEqual(history[7].content, "Message 19")
+        assert isinstance(history[7], AIMessage)
+
+    def test_ask_question(self):
+        game = Game.objects.create(name="Test Game")
+        chat_session = ChatSession.objects.create(game=game)
+
+        question = "What is the meaning of life?"
+
+        # Mock _setup_conversational_retrieval_chain
+        with mock.patch(
+            "chat.services.question_answering_service._setup_conversational_retrieval_chain"
+        ) as mock_from_llm:
+            mock_from_llm.return_value = mock_from_llm
+            mock_from_llm.run.return_value = "42"
+            ask_question(question, chat_session)
+
+        # Assert that messages are created
+        self.assertEqual(chat_session.message_set.count(), 2)
+        self.assertEqual(chat_session.message_set.first().message, question)
+        self.assertEqual(chat_session.message_set.first().message_type, "human")
+        self.assertEqual(chat_session.message_set.last().message, "42")
+        self.assertEqual(chat_session.message_set.last().message_type, "ai")
