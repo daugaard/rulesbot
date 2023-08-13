@@ -22,7 +22,6 @@ def _setup_conversational_retrieval_chain(chat_session):
         llm=ChatOpenAI(),
         condense_question_llm=OpenAI(),
         retriever=chat_session.game.vector_store.index.as_retriever(),
-        verbose=True,
     )
 
 
