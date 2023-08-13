@@ -15,7 +15,7 @@ jobs:
           poetry install --no-interaction --no-root
       - name: Run tests
         run: |
-          poetry run python manage.py test
+          poetry run coverage run --source='.' manage.py test
       - name: List coverage
         run: |
           poetry run coverage report
