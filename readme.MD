@@ -1,3 +1,5 @@
+[![Test](https://github.com/daugaard/rulesbot/actions/workflows/test.yml/badge.svg)](https://github.com/daugaard/rulesbot/actions/workflows/test.yml)
+
 # RulesBot
 AI powered boardgame rules bot.
 
