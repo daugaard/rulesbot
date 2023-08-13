@@ -23,7 +23,7 @@ class SessionIndexView(generic.ListView):
     context_object_name = "chat_sessions"
 
     def get_queryset(self):
-        return ChatSession.objects.order_by("-created")
+        return ChatSession.objects.order_by("-created_at")
 
 
 def view_chat_session(request, session_slug):
