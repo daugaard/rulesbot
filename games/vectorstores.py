@@ -1,4 +1,3 @@
-from functools import lru_cache
 from django.conf import settings
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.embeddings.fake import DeterministicFakeEmbedding
@@ -16,12 +15,8 @@ class GameVectorStore:
     A vector store for a specific game.
 
     This vector store will have all the game documents loaded and stored along side the game record in the database.
-
-    We cache the index in memory to avoid having to load it from the database on every request.
-    TODO: Re-evaluate the maxsize of the cache as we add more games to the system.
     """
 
-    @lru_cache(maxsize=20)
     def __init__(self, game, embedding=None):
         self.game = game
 
