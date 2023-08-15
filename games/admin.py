@@ -15,7 +15,6 @@ class GameAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "ingested",
-        "vector_store_binary_size",
         "created_at",
         "updated_at",
     )
