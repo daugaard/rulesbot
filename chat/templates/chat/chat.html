@@ -10,7 +10,7 @@ Documents referenced in this chat:
 {% for message in chat_session.message_set.all %}
     {% if message.message_type != 'system' %}
         <p>{{ message.message_type}}</p>
-        <p>{{ message.message }}</p>
+        <p>{{ message.message |linebreaks }}</p>
     {% endif %}
 {% endfor %}
 
