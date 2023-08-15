@@ -1,7 +1,7 @@
 import uuid
 from django.db import models
 
-from games.models import Game
+from games.models import Document, Game
 
 
 class ChatSession(models.Model):
@@ -33,3 +33,9 @@ class Message(models.Model):
 
     class Meta:
         ordering = ("updated_at",)
+
+
+class SourceDocument(models.Model):
+    message = models.ForeignKey(Message, on_delete=models.CASCADE)
+    document = models.ForeignKey(Document, on_delete=models.CASCADE)
+    page_number = models.IntegerField()

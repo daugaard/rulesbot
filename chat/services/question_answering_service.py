@@ -8,20 +8,28 @@ def ask_question(question, chat_session):
     """
     Ask a question in the chat session and add response to the chat session.
     """
-    qc_chain = _setup_conversational_retrieval_chain(chat_session)
-    answer = qc_chain.run(
+    qa_chain = _setup_conversational_retrieval_chain(chat_session)
+    result = qa_chain(
         {"question": question, "chat_history": _get_chat_history(chat_session)}
     )
 
     chat_session.message_set.create(message=question, message_type="human")
-    chat_session.message_set.create(message=answer, message_type="ai")
+
+    answer = result["answer"]
+    ai_message = chat_session.message_set.create(message=answer, message_type="ai")
+    for source_document in result["source_documents"]:
+        ai_message.sourcedocument_set.create(
+            document_id=source_document.metadata["document_id"],
+            page_number=source_document.metadata["page"],
+        )
 
 
 def _setup_conversational_retrieval_chain(chat_session):
     return ConversationalRetrievalChain.from_llm(
         llm=ChatOpenAI(),
         condense_question_llm=OpenAI(),
-        retriever=chat_session.game.vector_store.index.as_retriever(),
+        retriever=chat_session.game.vector_store.index.as_retriever(k=4),
+        return_source_documents=True,
     )
 
 
