@@ -1,7 +1,10 @@
 from django.conf import settings
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.embeddings.fake import DeterministicFakeEmbedding
-from langchain.vectorstores import FAISS
+from langchain.vectorstores.redis import Redis
+import redis
+
+from redis.client import Redis as RedisClient
 
 EMBEDDING_LENGTH = 1536
 
@@ -23,7 +26,15 @@ class GameVectorStore:
         if embedding is None:
             embedding = DEFAULT_EMBEDDING
         self.embedding = embedding
-        self.index = self._try_load_game_index()
+        self.index = (
+            Redis.from_existing_index(
+                embedding=embedding,
+                redis_url=settings.REDIS_URL,
+                index_name=self._game_index_name(),
+            )
+            if self._index_exists()
+            else None
+        )
 
     def add_documents(self, documents, document_id):
         """
@@ -37,31 +48,42 @@ class GameVectorStore:
             document.metadata["game_id"] = self.game.id
             document.metadata["document_id"] = document_id
 
-        if self.index:
+        if self.index is not None:
             self.index.add_documents(documents)
         else:
-            self.index = FAISS.from_documents(documents, self.embedding)
-
-        # Commit these changes to the game object
-        self.persist_to_game()
-
-    def persist_to_game(self):
-        """
-        Persist the index to the database
-        """
-        self.game.vector_store_binary = self.index.serialize_to_bytes()
-        self.game.save()
-
-    def _try_load_game_index(self):
-        """
-        Try to load the game table from the database
-        """
-        if self.game.vector_store_binary is not None:
-            return FAISS.deserialize_from_bytes(
-                self.game.vector_store_binary, self.embedding
+            self.index = Redis.from_documents(
+                documents=documents,
+                redis_url=settings.REDIS_URL,
+                index_name=self._game_index_name(),
+                embedding=self.embedding,
             )
-        else:
-            return None
+
+    def clear(self):
+        """
+        Clear the vector store
+        """
+        if self.index:
+            self.index.drop_index(
+                index_name=self._game_index_name(), delete_documents=True
+            )
+
+    def _index_exists(self):
+        """
+        Check if the index exists
+        """
+        client = RedisClient.from_url(settings.REDIS_URL)
+
+        try:
+            client.ft(self._game_index_name()).info()
+        except redis.exceptions.ResponseError as e:
+            if e.args[0] == "Unknown Index name":
+                client.close()
+                return False
+            else:
+                raise e
+
+        client.close()
+        return True
 
     def _game_index_name(self):
         return f"game_{self.game.id}_documents"
