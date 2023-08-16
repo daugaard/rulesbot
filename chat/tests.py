@@ -1,11 +1,12 @@
 from unittest import mock
+
 from django.test import TestCase
 from django.urls import reverse
+from langchain.document_loaders.base import Document
+from langchain.schema.messages import AIMessage, HumanMessage
+
 from chat.models import ChatSession
 from chat.services.question_answering_service import _get_chat_history, ask_question
-from langchain.schema.messages import AIMessage, HumanMessage
-from langchain.document_loaders.base import Document
-
 from games.models import Game
 
 

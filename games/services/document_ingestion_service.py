@@ -1,9 +1,9 @@
 import tempfile
-import requests
 
-from pypdf import PdfReader
+import requests
 from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from pypdf import PdfReader
 
 
 def ingest_document(document):

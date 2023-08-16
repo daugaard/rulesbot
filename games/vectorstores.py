@@ -1,9 +1,8 @@
+import redis
 from django.conf import settings
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.embeddings.fake import DeterministicFakeEmbedding
 from langchain.vectorstores.redis import Redis
-import redis
-
 from redis.client import Redis as RedisClient
 
 EMBEDDING_LENGTH = 1536

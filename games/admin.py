@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from games.services.document_ingestion_service import ingest_document
 
-from .models import Game, Document
+from .models import Document, Game
 
 
 class DocumentInline(admin.TabularInline):

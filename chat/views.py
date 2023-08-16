@@ -1,12 +1,10 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import generic
+
 from chat.forms import ChatForm
-
-
 from chat.models import ChatSession
 from chat.services import question_answering_service
-
 from games.models import Game
 
 
