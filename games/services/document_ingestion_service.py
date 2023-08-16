@@ -57,6 +57,6 @@ def _load_and_split(filename):
     pages = loader.load_and_split()
     # At this point we have split the pdf into pages, but they can often be too large to send to the model so lets split into smaller chunks
     sections = RecursiveCharacterTextSplitter(
-        chunk_size=1000, chunk_overlap=100
+        chunk_size=2000, chunk_overlap=100
     ).split_documents(pages)
     return sections

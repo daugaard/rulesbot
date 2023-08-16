@@ -4,6 +4,7 @@ from django.urls import reverse
 from chat.models import ChatSession
 from chat.services.question_answering_service import _get_chat_history, ask_question
 from langchain.schema.messages import AIMessage, HumanMessage
+from langchain.document_loaders.base import Document
 
 from games.models import Game
 
@@ -85,6 +86,7 @@ class QuestionAnsweringServiceTests(TestCase):
 
     def test_ask_question(self):
         game = Game.objects.create(name="Test Game")
+        document = game.document_set.create(display_name="Rulebook", url="some-url")
         chat_session = ChatSession.objects.create(game=game)
 
         question = "What is the meaning of life?"
@@ -93,8 +95,17 @@ class QuestionAnsweringServiceTests(TestCase):
         with mock.patch(
             "chat.services.question_answering_service._setup_conversational_retrieval_chain"
         ) as mock_from_llm:
-            mock_from_llm.return_value = mock_from_llm
-            mock_from_llm.run.return_value = "42"
+            mock_from_llm.return_value = mock.MagicMock(
+                return_value={
+                    "answer": "42",
+                    "source_documents": [
+                        Document(
+                            page_content="some content",
+                            metadata={"document_id": document.id, "page": 42},
+                        )
+                    ],
+                }
+            )
             ask_question(question, chat_session)
 
         # Assert that messages are created
@@ -103,3 +114,9 @@ class QuestionAnsweringServiceTests(TestCase):
         self.assertEqual(chat_session.message_set.first().message_type, "human")
         self.assertEqual(chat_session.message_set.last().message, "42")
         self.assertEqual(chat_session.message_set.last().message_type, "ai")
+        ai_message = chat_session.message_set.last()
+        self.assertEqual(len(ai_message.sourcedocument_set.all()), 1)
+        self.assertEqual(ai_message.sourcedocument_set.first().document, document)
+        self.assertEqual(
+            ai_message.sourcedocument_set.first().page_number, 43
+        )  # 0-indexed
