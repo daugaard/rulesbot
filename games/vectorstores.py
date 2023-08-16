@@ -72,11 +72,11 @@ class GameVectorStore:
         Check if the index exists
         """
         client = RedisClient.from_url(settings.REDIS_URL)
-
         try:
             client.ft(self._game_index_name()).info()
         except redis.exceptions.ResponseError as e:
-            if e.args[0] == "Unknown Index name":
+            message = e.args[0] if len(e.args) > 0 else ""
+            if message.lower() == "unknown index name":
                 client.close()
                 return False
             else:
