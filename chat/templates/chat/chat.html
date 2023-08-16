@@ -11,6 +11,13 @@ Documents referenced in this chat:
     {% if message.message_type != 'system' %}
         <p>{{ message.message_type}}</p>
         <p>{{ message.message |linebreaks }}</p>
+        {% if message.sourcedocument_set.count %}
+            <p>Source:
+                {% for source in message.sourcedocument_set.all %}
+                    <a href="{{ source.document.url }}" target="_new">{{ source.document.display_name }} - Page {{ source.page_number }}</a>,
+                {% endfor %}
+            </p>
+        {% endif %}
     {% endif %}
 {% endfor %}
 

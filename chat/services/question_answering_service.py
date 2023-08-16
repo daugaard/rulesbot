@@ -20,7 +20,7 @@ def ask_question(question, chat_session):
     for source_document in result["source_documents"]:
         ai_message.sourcedocument_set.create(
             document_id=source_document.metadata["document_id"],
-            page_number=source_document.metadata["page"],
+            page_number=source_document.metadata["page"] + 1,  # 0-indexed
         )
 
 
@@ -28,7 +28,7 @@ def _setup_conversational_retrieval_chain(chat_session):
     return ConversationalRetrievalChain.from_llm(
         llm=ChatOpenAI(),
         condense_question_llm=OpenAI(),
-        retriever=chat_session.game.vector_store.index.as_retriever(k=4),
+        retriever=chat_session.game.vector_store.index.as_retriever(k=3),
         return_source_documents=True,
     )
 
