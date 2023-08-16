@@ -117,4 +117,6 @@ class QuestionAnsweringServiceTests(TestCase):
         ai_message = chat_session.message_set.last()
         self.assertEqual(len(ai_message.sourcedocument_set.all()), 1)
         self.assertEqual(ai_message.sourcedocument_set.first().document, document)
-        self.assertEqual(ai_message.sourcedocument_set.first().page_number, 42)
+        self.assertEqual(
+            ai_message.sourcedocument_set.first().page_number, 43
+        )  # 0-indexed
