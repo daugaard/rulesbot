@@ -2,7 +2,7 @@
 Documents referenced in this chat:
 <ul>
     {% for document in chat_session.game.document_set.all %}
-        <li>{{ document.display_name }} - <a href="{{ document.url }}" target="_new">Download</a></li>
+        <li>{{ document.display_name }} - <a href="{{ document.display_url }}" target="_new">Download</a></li>
     {% endfor %}
 </ul>
 
@@ -14,7 +14,7 @@ Documents referenced in this chat:
         {% if message.sourcedocument_set.count %}
             <p>Source:
                 {% for source in message.sourcedocument_set.all %}
-                    <a href="{{ source.document.url }}" target="_new">{{ source.document.display_name }} - Page {{ source.page_number }}</a>,
+                    <a href="{{ source.document.display_url }}" target="_new">{{ source.document.display_name }} - Page {{ source.page_number }}</a>,
                 {% endfor %}
             </p>
         {% endif %}

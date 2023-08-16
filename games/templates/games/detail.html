@@ -4,6 +4,6 @@ Ingested: {{ game.ingested }}
 
 <ul>
     {% for document in game.document_set.all %}
-        <li>{{ document.display_name }} at {{document.url}}</li>
+        <li>{{ document.display_name }} at {{document.display_url}}</li>
     {% endfor %}
 </ul>
