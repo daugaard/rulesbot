@@ -202,3 +202,16 @@ class GameAdminTest(RedisTestCase):
         self.assertEqual(results[0].metadata["game_id"], game.id)
         self.assertEqual(results[0].metadata["document_id"], document.id)
         self.assertTrue("Page\n1" in results[0].page_content)
+
+
+class GameModelTest(TestCase):
+    def test_game_str(self):
+        game = Game.objects.create(name="Test Game")
+        self.assertEqual(str(game), "Test Game")
+
+    def test_game_with_docs(self):
+        game = Game.objects.create(name="Test Game")
+        Document.objects.create(game=game, url="some-url")
+        Document.objects.create(
+            game=game, url="some--other-url", display_name="some-different-url"
+        )
