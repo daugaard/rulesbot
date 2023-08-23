@@ -1,0 +1,105 @@
+{% extends "master.html" %}
+
+{% load static %}
+
+{% block title %}
+  | Your Ultimate Board Game Rules Assistant!
+{% endblock %}
+
+{% block content %}
+
+<!-- -------- START HEADER 1 w/ text and image on right ------- -->
+<header>
+    <div class="page-header min-vh-75">
+      <div class="oblique position-absolute top-0 h-100 d-md-block d-none">
+        <div class="oblique-image bg-cover position-absolute fixed-top ms-auto h-100 z-index-0 ms-n6" style="background-image:url('./static/img/game-floor.jpg')"></div>
+      </div>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6 col-md-7 d-flex justify-content-center flex-column">
+            <h1 class="text-gradient text-primary">RulesBot.ai</h1>
+            <h1 class="mb-4">Your Ultimate Board Game Rules Assistant!</h1>
+            <p class="lead pe-5 me-5">Are you tired of scouring through thick rulebooks and manuals every time you have a question about a board game?
+                Say goodbye to confusion and frustration, and say hello to RulesBot.ai – your intelligent solution for seamless board game experiences!</p>
+            <div class="buttons">
+              <a href="{% url 'chat:index' %}" class="btn bg-gradient-primary mt-4">Ask questions now!</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <!-- -------- END HEADER 1 w/ text and image on right ------- -->
+  <section class="">
+    <div class="container py-5">
+      <div class="row align-items-center">
+        <div class="col-md-6 mb-md-0 mb-4">
+          <h3 class="text-gradient text-primary mb-0">Experience Gaming Clarity</h3>
+          <h3>Instant Answers, Absolute Precision</h3>
+          <p class="lead mb-md-5 mb-4">
+            No more second-guessing or debating rules with friends. With RulesBot.ai, you can directly inquire about your board game queries and receive instantaneous, pinpoint accurate responses. Our AI understands the nuances of game rules and provides clear explanations, with citations, that keep you in the game.
+            </p>
+        </div>
+        <div class="col-md-6">
+          <div class=" text-center">
+            <img src="./static/img/child-playing.jpg" alt="img-blur-shadow" class="img-fluid shadow border-radius-lg max-height-600">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h3 class="text-gradient text-primary mb-0">Try it now!</h3>
+                <h3>We support all your favorite games!</h3></div>
+        </div>
+        <div class="row justify-space-between py-2">
+            {% for game in games %}
+            <div class="col-md-4 mx-auto">
+                <div class="card card-plain card-blog mt-4">
+                <div class="card-image border-radius-lg position-relative">
+                    <a href="{% url 'chat:create_chat_session' game.id %}">
+                    <div class="blur-shadow-image">
+                        <img class="img card-img-top border-radius-lg move-on-hover" src="/static/img/ti.jpg">
+                    </div>
+                    <div class="colored-shadow" style="background-image: url(&quot;./static/img/curved-images/curved8.jpg&quot;);"></div></a>
+                </div>
+                <div class="card-body px-0">
+                    <h5>
+                    <a href="{% url 'chat:create_chat_session' game.id %}" class="text-dark font-weight-bold">{{ game.name }}</a>
+                    </h5>
+                    <a href="{% url 'chat:create_chat_session' game.id %}" class="text-info icon-move-right">Ask RulesBot.ai
+                    <i class="fas fa-arrow-right text-sm" aria-hidden="true"></i>
+                    </a>
+                </div>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="col-md-4 mx-auto">
+                <div class="card card-plain card-blog mt-4">
+                <div class="card-image border-radius-lg position-relative">
+                    <a href="{% url 'chat:index' %}">
+                    <div class="blur-shadow-image">
+                        <img class="img card-img-top border-radius-lg move-on-hover" src="/static/img/more-games.jpg">
+                    </div>
+                    <div class="colored-shadow"></div></a>
+                </div>
+                <div class="card-body px-0">
+                    <h5>
+                    <a href="{% url 'chat:index' %}"" class="text-dark font-weight-bold">Didn't find what you're looking for?</a>
+                    </h5>
+                    <p>Check out our comprehensive list of supported game...</p>
+                    <a href="{% url 'chat:index' %}"" class="text-info icon-move-right">More games ...
+                    <i class="fas fa-arrow-right text-sm" aria-hidden="true"></i>
+                    </a>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </section>
+{% endblock %}

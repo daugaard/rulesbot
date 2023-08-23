@@ -1,9 +1,17 @@
-{% if games %}
-    <ul>
-    {% for game in games %}
-        <li><a href="{% url 'games:detail' game.id %}">{{ game.name }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No games are available.</p>
-{% endif %}
+{% extends 'master.html' %}
+
+{% block title %}
+  Easy boardgame rules
+{% endblock %}
+
+{% block content %}
+    {% if games %}
+        <ul>
+        {% for game in games %}
+            <li><a href="{% url 'games:detail' game.id %}">{{ game.name }}</a></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No games are available.</p>
+    {% endif %}
+{% endblock %}

@@ -1,29 +1,123 @@
-<h1>Ask questions about {{chat_session.game.name}}</h1>
-Documents referenced in this chat:
-<ul>
-    {% for document in chat_session.game.document_set.all %}
-        <li>{{ document.display_name }} - <a href="{{ document.display_url }}" target="_new">Download</a></li>
-    {% endfor %}
-</ul>
+{% extends "master.html" %}
 
-<h2>Chat</h2>
-{% for message in chat_session.message_set.all %}
-    {% if message.message_type != 'system' %}
-        <p>{{ message.message_type}}</p>
-        <p>{{ message.message |linebreaks }}</p>
-        {% if message.sourcedocument_set.count %}
-            <p>Source:
-                {% for source in message.sourcedocument_set.all %}
-                    <a href="{{ source.document.display_url }}" target="_new">{{ source.document.display_name }} - Page {{ source.page_number }}</a>,
-                {% endfor %}
-            </p>
-        {% endif %}
-    {% endif %}
-{% endfor %}
+{% block title %}
+  Easy boardgame rules
+{% endblock %}
 
+{% block content %}
+<section>
+    <div class="container py-4">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card blur shadow-blur" style="height:85vh !important">
+                    <div class="card-header shadow-lg">
+                        <h4 class="text-center"><span class="text-gradient text-primary">Let's talk about </span>{{chat_session.game.name}}</h4>
+                    </div>
+                    <div class="card-body overflow-auto overflow-x-hidden">
+                        <div class="row justify-content-start mb-4">
+                            <div class="col-auto">
+                                <div class="card bg-gray-200 text-dark">
+                                    <div class="card-body py-2 px-3">
+                                        <p class="mb-1 ">
+                                            👋 I've read the following documents related to {{chat_session.game.name}} and will base all of my answers on those:
+                                            <ul>
+                                                {% for document in chat_session.game.document_set.all %}
+                                                    <li>{{ document.display_name }} - <a href="{{ document.display_url }}" target="_new">Download</a></li>
+                                                {% endfor %}
+                                            </ul>
+                                            What would you like to know about {{chat_session.game.name}}?
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <!-- first AI message -->
+                        {% for message in chat_session.message_set.all %}
+                            {% if message.message_type != 'system' %}
+                            <div class="row {%if message.message_type == 'ai' %}justify-content-start{%else%}justify-content-end{%endif%} mb-4">
+                                <div class="col-auto">
+                                    <div class="card {%if message.message_type == 'ai' %}bg-gray-200{%else%}bg-gray-100{%endif%} text-dark">
+                                        <div class="card-body py-2 px-3">
+                                            <p class="mb-1 ">
+                                                {{ message.message |linebreaks }}
+                                            </p>
+                                            <div class="row">
+                                                <div class="col-12 d-flex align-items-left text-sm opacity-6">
+                                                    {% if message.sourcedocument_set.count %}
+                                                        <span>Source(s):</span>&nbsp;
+                                                        {% for source in message.sourcedocument_set.all %}
+                                                            <a href="{{ source.document.display_url }}" target="_new">{{ source.document.display_name }} - Page {{ source.page_number }}</a>
+                                                            {% if not forloop.last %},&nbsp;{% endif %}
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                        <div class="row justify-content-end mb-4" style="visibility: hidden;" id="chat-message-prototype">
+                            <div class="col-auto">
+                                <div class="card bg-gray-100 text-dark">
+                                    <div class="card-body py-2 px-3">
+                                        <p class="mb-1" id="chat-message">
 
-<form action="{% url 'chat:view_chat_session' chat_session.session_slug %}" method="post">
-    {% csrf_token %}
-    {{form}}
-    <input type="submit" value="Ask">
-</form>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row justify-content-start mb-4" style="visibility: collapse;" id="chat-message-loader">
+                            <div class="col-auto">
+                                <div class="card bg-gray-200 text-dark">
+                                    <div class="card-body py-2 px-3">
+                                        <div class="spinner-grow spinner-grow-sm" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer d-block">
+                        <form id="chat-form" action="{% url 'chat:view_chat_session' chat_session.session_slug %}" class="align-items-center" method="post">
+                            <div class="d-flex">
+                                <div class="input-group px-3">
+                                    {% csrf_token %}
+                                    <input type="text" name="question" class="form-control" placeholder="Ask your question here" maxlength="1000" required="" id="id_question" onfocus="focused(this)" onfocusout="defocused(this)">
+                                    <button class="btn bg-gradient-primary mb-0 ms-2">
+                                        <i class="fa fa-send"></i> Ask RulesBot.ai
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script type="text/javascript">
+    // onload scroll to bottom
+    window.onload = function() {
+        var objDiv = document.getElementsByClassName("overflow-auto")[0];
+        objDiv.scrollTop = objDiv.scrollHeight;
+    }
+
+    // when submitting the form, add a new message to the chat session and submit the form
+    document.getElementById("chat-form").onsubmit = function() {
+        var question = document.getElementById("id_question").value;
+        document.getElementById("chat-message-prototype").style.visibility = "visible";
+        var newMessage = document.getElementById("chat-message").innerHTML = question;
+
+        var objDiv = document.getElementsByClassName("overflow-auto")[0];
+        objDiv.scrollTop = objDiv.scrollHeight;
+
+        document.getElementById("chat-message-loader").style.visibility = "visible";
+        return true;
+    };
+
+</script>
+{% endblock %}
