@@ -13,7 +13,7 @@
                     <div class="card-header shadow-lg">
                         <h4 class="text-center"><span class="text-gradient text-primary">Let's talk about </span>{{chat_session.game.name}}</h4>
                     </div>
-                    <div class="card-body overflow-scroll overflow-x-hidden">
+                    <div class="card-body overflow-auto overflow-x-hidden">
                         <div class="row justify-content-start mb-4">
                             <div class="col-auto">
                                 <div class="card bg-gray-200 text-dark">
@@ -58,7 +58,7 @@
                             </div>
                             {% endif %}
                         {% endfor %}
-                        <div class="row justify-content-end mb-4" style="visibility: collapse;" id="chat-message-prototype">
+                        <div class="row justify-content-end mb-4" style="visibility: hidden;" id="chat-message-prototype">
                             <div class="col-auto">
                                 <div class="card bg-gray-100 text-dark">
                                     <div class="card-body py-2 px-3">
@@ -102,7 +102,7 @@
 <script type="text/javascript">
     // onload scroll to bottom
     window.onload = function() {
-        var objDiv = document.getElementsByClassName("overflow-scroll")[0];
+        var objDiv = document.getElementsByClassName("overflow-auto")[0];
         objDiv.scrollTop = objDiv.scrollHeight;
     }
 
@@ -112,7 +112,7 @@
         document.getElementById("chat-message-prototype").style.visibility = "visible";
         var newMessage = document.getElementById("chat-message").innerHTML = question;
 
-        var objDiv = document.getElementsByClassName("overflow-scroll")[0];
+        var objDiv = document.getElementsByClassName("overflow-auto")[0];
         objDiv.scrollTop = objDiv.scrollHeight;
 
         document.getElementById("chat-message-loader").style.visibility = "visible";
