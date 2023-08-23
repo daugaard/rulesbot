@@ -5,15 +5,35 @@
 {% endblock %}
 
 {% block content %}
-    {% if games %}
-        <ul>
-        {% for game in games %}
-            <li>Ask rulesbot questions about <a href="{% url 'chat:create_chat_session' game.id %}">{{ game.name }}</a></li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>No games are available.</p>
-    {% endif %}
-
-    <a href="{% url 'chat:sessions' %}">All sessions</a>
+<section class="py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h3>We support all your favorite games!</h3></div>
+        </div>
+        <div class="row justify-space-between py-2">
+            {% for game in games %}
+            <div class="col-md-4 mx-auto">
+                <div class="card card-plain card-blog mt-4">
+                <div class="card-image border-radius-lg position-relative">
+                    <a href="{% url 'chat:create_chat_session' game.id %}">
+                    <div class="blur-shadow-image">
+                        <img class="img border-radius-lg move-on-hover" src="/static/img/ti.jpg">
+                    </div>
+                    <div class="colored-shadow"></div></a>
+                </div>
+                <div class="card-body px-0">
+                    <h5>
+                    <a href="{% url 'chat:create_chat_session' game.id %}" class="text-dark font-weight-bold">{{ game.name }}</a>
+                    </h5>
+                    <a href="{% url 'chat:create_chat_session' game.id %}" class="text-info icon-move-right">Ask RulesBot.ai
+                    <i class="fas fa-arrow-right text-sm" aria-hidden="true"></i>
+                    </a>
+                </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+  </section>
 {% endblock %}

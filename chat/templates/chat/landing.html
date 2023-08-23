@@ -22,7 +22,7 @@
             <p class="lead pe-5 me-5">Are you tired of scouring through thick rulebooks and manuals every time you have a question about a board game?
                 Say goodbye to confusion and frustration, and say hello to RulesBot.ai – your intelligent solution for seamless board game experiences!</p>
             <div class="buttons">
-              <button type="button" class="btn bg-gradient-primary mt-4">Ask questions now!</button>
+              <a href="{% url 'chat:index' %}" class="btn bg-gradient-primary mt-4">Ask questions now!</a>
             </div>
           </div>
         </div>
@@ -64,7 +64,7 @@
                 <div class="card-image border-radius-lg position-relative">
                     <a href="{% url 'chat:create_chat_session' game.id %}">
                     <div class="blur-shadow-image">
-                        <img class="img border-radius-lg move-on-hover" src="./static/img/chess.jpg">
+                        <img class="img border-radius-lg move-on-hover" src="./static/img/ti.jpg">
                     </div>
                     <div class="colored-shadow" style="background-image: url(&quot;./static/img/curved-images/curved8.jpg&quot;);"></div></a>
                 </div>
