@@ -87,7 +87,7 @@
                                 <div class="input-group px-3">
                                     {% csrf_token %}
                                     <input type="text" name="question" class="form-control" placeholder="Ask your question here" maxlength="1000" required="" id="id_question" onfocus="focused(this)" onfocusout="defocused(this)">
-                                    <button class="btn bg-gradient-primary mb-0 ms-2">
+                                    <button class="btn bg-gradient-primary mb-0 ms-2" id="chat-form-button">
                                         <i class="fa fa-send"></i> Ask RulesBot.ai
                                     </button>
                                 </div>
@@ -116,6 +116,8 @@
         objDiv.scrollTop = objDiv.scrollHeight;
 
         document.getElementById("chat-message-loader").style.visibility = "visible";
+
+        document.getElementById("chat-form-button").disabled = true;
         return true;
     };
 
