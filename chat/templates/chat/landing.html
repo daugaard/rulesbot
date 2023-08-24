@@ -64,9 +64,9 @@
                 <div class="card-image border-radius-lg position-relative">
                     <a href="{% url 'chat:create_chat_session' game.id %}">
                     <div class="blur-shadow-image">
-                        <img class="img card-img-top border-radius-lg move-on-hover" src="/static/img/ti.jpg">
+                        <img class="img card-img-top border-radius-lg move-on-hover" src="{% if game.card_image %}{{game.card_image.url}}{% else %}/static/img/ti.png{% endif %}">
                     </div>
-                    <div class="colored-shadow" style="background-image: url(&quot;./static/img/curved-images/curved8.jpg&quot;);"></div></a>
+                  </a>
                 </div>
                 <div class="card-body px-0">
                     <h5>
