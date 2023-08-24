@@ -1,9 +1,44 @@
-<h1>{{ game.name }}</h1>
+{% extends "master.html" %}
 
-Ingested: {{ game.ingested }}
+{% block title %}
+  | {{ game.name }} rulebook and rules chat
+{% endblock %}
 
-<ul>
-    {% for document in game.document_set.all %}
-        <li>{{ document.display_name }} at {{document.display_url}}</li>
-    {% endfor %}
-</ul>
+{% block content %}
+<header>
+    <div class="page-header min-vh-75">
+        <div class="oblique position-absolute top-0 h-100 d-md-block d-none">
+        <div class="oblique-image bg-cover position-absolute fixed-top ms-auto h-100 z-index-0 ms-n6" style="background-image:url('{% if game.card_image %}{{game.card_image.url}}{% else %}/static/img/game-floor.jpg{% endif %}')"></div>
+        </div>
+        <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-7 d-flex justify-content-center flex-column">
+            <h1 class="text-gradient text-primary">{{ game.name }}</h1>
+            <h1 class="mb-4">Rules chat and rulebook</h1>
+            <p class="lead pe-5 me-5">
+                RulesBot.ai lets you chat with the {{ game.name }} rulebook.
+            </p>
+            <p class="lead pe-5 me-5">
+                Ask questions about the rules and get answers instantly. No more searching through the rulebook for answers!
+            </p>
+            <div class="buttons">
+                <a href="{% url 'chat:create_chat_session' game.id %}" class="btn bg-gradient-primary mt-4">Ask questions now!</a>
+                </br>
+                <a href="{{ game.rulebook_url }}" class="text-info text-sm ms-2" target="_blank">Read the rulebook</a>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</header>
+
+
+<section class="py-5">
+
+    <div class="container">
+        <h3>
+            Example questions
+        </h3>
+    </div>
+</section>
+{% endblock %}

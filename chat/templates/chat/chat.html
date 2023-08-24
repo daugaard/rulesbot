@@ -83,11 +83,16 @@
                     </div>
                     <div class="card-footer d-block">
                         <form id="chat-form" action="{% url 'chat:view_chat_session' chat_session.session_slug %}" class="align-items-center" method="post">
-                            <div class="d-flex">
-                                <div class="input-group px-3">
-                                    {% csrf_token %}
-                                    <input type="text" name="question" class="form-control" placeholder="Ask your question here" maxlength="1000" required="" id="id_question" onfocus="focused(this)" onfocusout="defocused(this)">
-                                    <button class="btn bg-gradient-primary mb-0 ms-2" id="chat-form-button">
+                            <div class="row">
+                                {% csrf_token %}
+                                <div class="col-md-10">
+                                    <div class="input-group mt-2">
+                                        <input type="text" name="question" class="form-control" placeholder="Ask your question here" maxlength="1000" required="" id="id_question" onfocus="focused(this)" onfocusout="defocused(this)">
+                                    </div>
+
+                                </div>
+                                <div class="col-md-2">
+                                    <button class="btn bg-gradient-primary mt-2" id="chat-form-button">
                                         <i class="fa fa-send"></i> Ask RulesBot.ai
                                     </button>
                                 </div>

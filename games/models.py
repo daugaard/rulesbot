@@ -19,6 +19,14 @@ class Game(models.Model):
     def vector_store(self):
         return GameVectorStore(self)
 
+    @property
+    def rulebook_url(self):
+        # Always return the display URL of the first document
+        # Used to provide a rulebook link on the game page
+        if self.document_set.count() == 0:
+            return None
+        return self.document_set.first().display_url
+
 
 class Document(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
