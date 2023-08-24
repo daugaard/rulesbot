@@ -13,8 +13,8 @@
                     <div class="card-header shadow-lg">
                         <h4 class="text-center"><span class="text-gradient text-primary">Let's talk about </span>{{chat_session.game.name}}</h4>
                     </div>
-                    <div class="card-body overflow-auto overflow-x-hidden">
-                        <div class="row justify-content-start mb-4">
+                    <div class="card-body overflow-auto overflow-x-hidden" id="chat-window">
+                        <div class="row justify-content-start">
                             <div class="col-auto">
                                 <div class="card bg-gray-200 text-dark">
                                     <div class="card-body py-2 px-3">
@@ -34,7 +34,7 @@
                     <!-- first AI message -->
                         {% for message in chat_session.message_set.all %}
                             {% if message.message_type != 'system' %}
-                            <div class="row {%if message.message_type == 'ai' %}justify-content-start{%else%}justify-content-end{%endif%} mb-4">
+                            <div class="row {%if message.message_type == 'ai' %}justify-content-start{%else%}justify-content-end{%endif%} mt-4">
                                 <div class="col-auto">
                                     <div class="card {%if message.message_type == 'ai' %}bg-gray-200{%else%}bg-gray-100{%endif%} text-dark">
                                         <div class="card-body py-2 px-3">
@@ -58,28 +58,6 @@
                             </div>
                             {% endif %}
                         {% endfor %}
-                        <div class="row justify-content-end mb-4" style="visibility: hidden;" id="chat-message-prototype">
-                            <div class="col-auto">
-                                <div class="card bg-gray-100 text-dark">
-                                    <div class="card-body py-2 px-3">
-                                        <p class="mb-1" id="chat-message">
-
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row justify-content-start mb-4" style="visibility: collapse;" id="chat-message-loader">
-                            <div class="col-auto">
-                                <div class="card bg-gray-200 text-dark">
-                                    <div class="card-body py-2 px-3">
-                                        <div class="spinner-grow spinner-grow-sm" role="status">
-                                            <span class="visually-hidden">Loading...</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     <div class="card-footer d-block">
                         <form id="chat-form" action="{% url 'chat:view_chat_session' chat_session.session_slug %}" class="align-items-center" method="post">
@@ -104,6 +82,30 @@
         </div>
     </div>
 </section>
+<div style="visibility: hidden; height: 0;" id="prototypes">
+    <div class="row justify-content-end mt-4" style="visibility: hidden;" id="chat-message-prototype">
+        <div class="col-auto">
+            <div class="card bg-gray-100 text-dark">
+                <div class="card-body py-2 px-3">
+                    <p class="mb-1" id="chat-message">
+                        Loading ..
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-start mt-4" style="visibility: hidden;" id="chat-message-loader">
+        <div class="col-auto">
+            <div class="card bg-gray-200 text-dark">
+                <div class="card-body py-2 px-3">
+                    <div class="spinner-grow spinner-grow-sm" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
     // onload scroll to bottom
     window.onload = function() {
@@ -114,14 +116,26 @@
     // when submitting the form, add a new message to the chat session and submit the form
     document.getElementById("chat-form").onsubmit = function() {
         var question = document.getElementById("id_question").value;
-        document.getElementById("chat-message-prototype").style.visibility = "visible";
-        var newMessage = document.getElementById("chat-message").innerHTML = question;
+        // Clone chat-message-prototype and set the question
+        // Append to chat-window
+        var newMessage = document.getElementById("chat-message-prototype").cloneNode(true);
+        newMessage.style.visibility = "visible";
+        newMessage.id = "";
+        newMessage.getElementsByClassName("mb-1")[0].innerHTML = question;
 
+        var chatWindow = document.getElementById("chat-window");
+        chatWindow.appendChild(newMessage);
+
+        // Clone chat-message-loader and append to chat-window
+        var loaderMessage = document.getElementById("chat-message-loader");
+        loaderMessage.style.visibility = "visible";
+        chatWindow.appendChild(loaderMessage);
+
+        // Scroll to bottom
         var objDiv = document.getElementsByClassName("overflow-auto")[0];
         objDiv.scrollTop = objDiv.scrollHeight;
 
-        document.getElementById("chat-message-loader").style.visibility = "visible";
-
+        // Disable the button
         document.getElementById("chat-form-button").disabled = true;
         return true;
     };
