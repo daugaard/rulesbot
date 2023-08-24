@@ -7,6 +7,8 @@ class Game(models.Model):
     name = models.CharField(max_length=500)
     ingested = models.BooleanField(default=False)
 
+    card_image = models.ImageField(default=None, null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
