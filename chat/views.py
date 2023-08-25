@@ -13,7 +13,7 @@ class IndexView(generic.ListView):
     context_object_name = "games"
 
     def get_queryset(self):
-        return Game.objects.order_by("-created_at")
+        return Game.objects.order_by("name")
 
 
 class SessionIndexView(generic.ListView):
@@ -29,7 +29,7 @@ class LandingView(generic.ListView):
     context_object_name = "games"
 
     def get_queryset(self):
-        return Game.objects.order_by("-created_at")[:8]
+        return Game.objects.order_by("-created_at")[:5]
 
 
 def view_chat_session(request, session_slug):

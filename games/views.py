@@ -8,8 +8,7 @@ class IndexView(generic.ListView):
     context_object_name = "games"
 
     def get_queryset(self):
-        """Return the last five published questions."""
-        return Game.objects.order_by("-created_at")
+        return Game.objects.order_by("name")
 
 
 class DetailView(generic.DetailView):
