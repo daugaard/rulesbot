@@ -11,7 +11,13 @@
             <div class="col-lg-12">
                 <div class="card blur shadow-blur" style="height:85vh !important">
                     <div class="card-header shadow-lg">
-                        <h4 class="text-center"><span class="text-gradient text-primary">Let's talk about </span>{{chat_session.game.name}}</h4>
+                        <div class="row">
+                            <img src="{{chat_session.game.card_image.url}}" class="float-start rounded-3 chat-image">
+                            <div class="float-start col">
+                                <h6 class="text-gradient text-primary mb-0"">Let's talk about</h6>
+                                <h4 class="mt-0">{{chat_session.game.name}}</h4>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body overflow-auto overflow-x-hidden" id="chat-window">
                         <div class="row justify-content-start">

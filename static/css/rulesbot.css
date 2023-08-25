@@ -3,3 +3,9 @@
     height: 10vw;
     object-fit: cover;
 }
+
+.chat-image {
+    height: 70px;
+    max-width: 70px;
+    object-fit: cover;
+}
