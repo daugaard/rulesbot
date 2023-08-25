@@ -48,7 +48,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" role="button">
+            <a href="{% url 'about' %}" class="nav-link" role="button">
               About
             </a>
           </li>
@@ -68,10 +68,10 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-8 mb-4 mx-auto text-center">
-          <a href="javascript:;" target="_blank" class="text-secondary me-xl-5 me-3 mb-sm-0 mb-2">
+          <a href="{% url 'about' %}" target="_blank" class="text-secondary me-xl-5 me-3 mb-sm-0 mb-2">
             About Us
           </a>
-          <a href="javascript:;" target="_blank" class="text-secondary me-xl-5 me-3 mb-sm-0 mb-2">
+          <a href="{% url 'terms' %}" target="_blank" class="text-secondary me-xl-5 me-3 mb-sm-0 mb-2">
             Terms of Use
           </a>
         </div>

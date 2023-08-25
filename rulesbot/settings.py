@@ -53,6 +53,7 @@ else:
 INSTALLED_APPS = [
     "chat.apps.ChatConfig",
     "games.apps.GamesConfig",
+    "pages.apps.PagesConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

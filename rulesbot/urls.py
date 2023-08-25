@@ -17,10 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-from chat import views as chat_views
+from pages import views as pages_views
 
 urlpatterns = [
-    path("", chat_views.LandingView.as_view(), name="index"),
+    path("", pages_views.LandingView.as_view(), name="index"),
+    path("about/", pages_views.AboutView, name="about"),
+    path("terms/", pages_views.TermsView, name="terms"),
     path("games/", include("games.urls")),
     path("chat/", include("chat.urls")),
     path("admin/", admin.site.urls),

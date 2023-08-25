@@ -24,14 +24,6 @@ class SessionIndexView(generic.ListView):
         return ChatSession.objects.order_by("-created_at")
 
 
-class LandingView(generic.ListView):
-    template_name = "chat/landing.html"
-    context_object_name = "games"
-
-    def get_queryset(self):
-        return Game.objects.order_by("-created_at")[:5]
-
-
 def view_chat_session(request, session_slug):
     chat_session = get_object_or_404(ChatSession, session_slug=session_slug)
 
