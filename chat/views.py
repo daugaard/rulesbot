@@ -44,7 +44,11 @@ def view_chat_session(request, session_slug):
 def create_chat_session(request, game_id):
     game = get_object_or_404(Game, pk=game_id)
 
-    chat_session = ChatSession.objects.create(game=game)
+    ip_address = request.META.get("HTTP_X_FORWARDED_FOR", "")
+    if not ip_address:
+        ip_address = request.META.get("REMOTE_ADDR", "")
+
+    chat_session = ChatSession.objects.create(game=game, ip_address=ip_address)
 
     return redirect(
         reverse("chat:view_chat_session", args=(chat_session.session_slug,))

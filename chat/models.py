@@ -11,6 +11,8 @@ class ChatSession(models.Model):
         Game, on_delete=models.DO_NOTHING
     )  # Do not delete the session if the game is deleted
 
+    ip_address = models.GenericIPAddressField(null=True, default=None)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
