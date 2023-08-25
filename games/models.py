@@ -1,4 +1,5 @@
 from django.db import models
+from django.template.defaultfilters import slugify
 from django_resized import ResizedImageField
 
 from games.vectorstores import GameVectorStore
@@ -6,6 +7,7 @@ from games.vectorstores import GameVectorStore
 
 class Game(models.Model):
     name = models.CharField(max_length=500)
+    slug = models.SlugField(max_length=500, null=True, blank=True)
     ingested = models.BooleanField(default=False)
 
     card_image = ResizedImageField(
@@ -33,6 +35,10 @@ class Game(models.Model):
         if self.document_set.count() == 0:
             return None
         return self.document_set.first().display_url
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(Game, self).save(*args, **kwargs)
 
 
 class Document(models.Model):

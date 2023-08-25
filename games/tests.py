@@ -58,7 +58,7 @@ class GameDetailViewTests(TestCase):
         """
         If no game exists, a 404 is returned.
         """
-        response = self.client.get(reverse("games:detail", args=(1,)))
+        response = self.client.get(reverse("games:detail", args=("test",)))
         self.assertEqual(response.status_code, 404)
 
     def test_one_game(self):
@@ -66,7 +66,7 @@ class GameDetailViewTests(TestCase):
         If one game exists, it is displayed.
         """
         game = Game.objects.create(name="Test Game")
-        response = self.client.get(reverse("games:detail", args=(game.id,)))
+        response = self.client.get(reverse("games:detail", args=(game.slug,)))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test Game")
         self.assertEqual(response.context["game"], game)

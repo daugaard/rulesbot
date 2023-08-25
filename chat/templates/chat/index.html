@@ -25,7 +25,7 @@
                     <div class="card-body px-0">
                         <h4 class="position-relative">
                             <a href="{% url 'chat:create_chat_session' game.id %}" class="text-dark font-weight-bold">{{ game.name }}</a>
-                            <a href="{% url 'games:detail' game.id %}" class="text-secondary text-sm position-absolute ms-1"><i class="fas fa-info-circle" aria-hidden="true"></i></a>
+                            <a href="{% url 'games:detail' game.slug %}" class="text-secondary text-sm position-absolute ms-1"><i class="fas fa-info-circle" aria-hidden="true"></i></a>
                         </h4>
                         <a href="{% url 'chat:create_chat_session' game.id %}" class="btn btn-sm bg-gradient-primary">
                             Chat with RulesBot<i class="fas fa-chess-rook text-sm ms-2" aria-hidden="true"></i>
