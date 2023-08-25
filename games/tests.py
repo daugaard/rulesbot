@@ -48,8 +48,6 @@ class GameIndexViewTests(TestCase):
         response = self.client.get(reverse("games:index"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test Game 0")
-        # reverse order because we sort by created_at
-        games.reverse()
         self.assertQuerysetEqual(response.context["games"], games)
 
     # TODO: When we get there make sure non-ingested games are not displayed
