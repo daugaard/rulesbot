@@ -475,6 +475,18 @@ docs = ["furo (>=2021.8.17b43,<2021.9.0)", "sphinx (>=3.5.0)", "sphinx-notfound-
 testing = ["coverage[toml] (>=5.0a4)", "pytest (>=4.6.11)"]
 
 [[package]]
+name = "django-resized"
+version = "1.0.2"
+description = "Resizes image origin to specified size."
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "django-resized-1.0.2.tar.gz", hash = "sha256:52d727860f64ef4fdadbe2e74b66231c71c59df4d95949e338fcd320450f77fa"},
+    {file = "django_resized-1.0.2-py3-none-any.whl", hash = "sha256:d55a8d4125838486a1e76ffb689f8364f7d579bc7562b04400065602ec2ba7cc"},
+]
+
+[[package]]
 name = "django-storages"
 version = "1.13.2"
 description = "Support for many storage backends in Django"
@@ -1895,4 +1907,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "3.11.4"
-content-hash = "1fde006988232943305ae531c47eb46e4076b25d001522b9200d6fb8a8e887c3"
+content-hash = "01948f7f5585597271d0c79c54d1ad288df6f9389db6cffd6d605759e6762596"

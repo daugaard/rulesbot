@@ -1,4 +1,5 @@
 from django.db import models
+from django_resized import ResizedImageField
 
 from games.vectorstores import GameVectorStore
 
@@ -7,7 +8,14 @@ class Game(models.Model):
     name = models.CharField(max_length=500)
     ingested = models.BooleanField(default=False)
 
-    card_image = models.ImageField(default=None, null=True, blank=True)
+    card_image = ResizedImageField(
+        default=None,
+        null=True,
+        blank=True,
+        upload_to="games/card_images",
+        size=[900, None],
+        quality=75,
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
