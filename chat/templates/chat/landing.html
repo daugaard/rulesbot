@@ -67,7 +67,7 @@
                   <div class="card-image border-radius-lg position-relative">
                       <a href="{% url 'chat:create_chat_session' game.id %}">
                       <div class="blur-shadow-image">
-                          <img class="img card-img-top border-radius-lg move-on-hover" src="{% if game.card_image %}{{game.card_image.url}}{% else %}/static/img/ti.png{% endif %}">
+                          <img class="img card-img-top border-radius-lg move-on-hover" src="{{ game.card_image.url }}">
                       </div>
                   </a>
                   </div>

@@ -9,9 +9,8 @@ class Game(models.Model):
     ingested = models.BooleanField(default=False)
 
     card_image = ResizedImageField(
-        default=None,
-        null=True,
-        blank=True,
+        default="games/card_images/default.png",
+        null=False,
         upload_to="games/card_images",
         size=[900, None],
         quality=75,
