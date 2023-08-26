@@ -1,12 +1,13 @@
 {% extends "master.html" %}
 
-{% block title %}
-  | {{ game.name }} rulebook and rules chat
-{% endblock %}
+{% block title %}| {{ game.name }} rulebook and rules chat{% endblock %}
+
+{% block description %}Read the {{ game.name }} rulebook and ask our chatbot questions about the rules and get answers instantly. No more searching through the rulebook for answers!{% endblock %}
+
 
 {% block content %}
 <header>
-    <div class="page-header min-vh-50">
+    <div class="page-header min-vh-75">
         <div class="oblique position-absolute top-0 h-100 d-md-block d-none">
         <div class="oblique-image bg-cover position-absolute fixed-top ms-auto h-100 z-index-0 ms-n6" style="background-image:url('{{game.card_image.url}}')"></div>
         </div>
