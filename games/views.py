@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404, render
 from django.views import generic
 
 from games.models import Game
@@ -11,6 +12,9 @@ class IndexView(generic.ListView):
         return Game.objects.order_by("name")
 
 
-class DetailView(generic.DetailView):
-    model = Game
-    template_name = "games/detail.html"
+def detail_view(request, slug):
+    game = get_object_or_404(Game, slug=slug)
+
+    games = Game.objects.order_by("-created_at")[:5]
+
+    return render(request, "games/detail.html", {"game": game, "games": games})

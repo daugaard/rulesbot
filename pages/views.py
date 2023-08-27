@@ -12,9 +12,9 @@ class LandingView(generic.ListView):
         return Game.objects.order_by("-created_at")[:5]
 
 
-def AboutView(request):
+def about_view(request):
     return render(request, "pages/about.html")
 
 
-def TermsView(request):
+def terms_view(request):
     return render(request, "pages/terms.html")

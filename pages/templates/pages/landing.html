@@ -12,7 +12,7 @@ Rulesbot.ai | Your Ultimate Board Game Rules Assistant!
 
 <!-- -------- START HEADER 1 w/ text and image on right ------- -->
 <header>
-    <div class="page-header min-vh-75">
+    <div class="page-header min-vh-50">
       <div class="oblique position-absolute top-0 h-100 d-md-block d-none">
         <div class="oblique-image bg-cover position-absolute fixed-top ms-auto h-100 z-index-0 ms-n6" style="background-image:url('/static/img/screenshot-chat.jpg')"></div>
       </div>
@@ -65,26 +65,7 @@ Rulesbot.ai | Your Ultimate Board Game Rules Assistant!
         </div>
         <div class="row justify-space-between py-2">
             {% for game in games %}
-            <div class="col-md-4 mx-auto">
-              <div class="card card-plain card-blog mt-4">
-                  <div class="card-image border-radius-lg position-relative">
-                      <a href="{% url 'chat:create_chat_session' game.id %}">
-                      <div class="blur-shadow-image">
-                          <img class="img card-img-top border-radius-lg move-on-hover" src="{{ game.card_image.url }}">
-                      </div>
-                  </a>
-                  </div>
-                  <div class="card-body px-0">
-                      <h4 class="position-relative">
-                      <a href="{% url 'chat:create_chat_session' game.id %}" class="text-dark font-weight-bold">{{ game.name }}</a>
-                      <a href="{% url 'games:detail' game.slug %}" class="text-secondary text-sm position-absolute ms-1"><i class="fas fa-info-circle" aria-hidden="true"></i></a>
-                      </h4>
-                      <a href="{% url 'chat:create_chat_session' game.id %}" class="btn btn-sm bg-gradient-primary">
-                          Chat with RulesBot<i class="fas fa-chess-rook text-sm ms-2" aria-hidden="true"></i>
-                      </a>
-                  </div>
-              </div>
-          </div>
+              {% include "games/_card.html" %}
             {% endfor %}
             <div class="col-md-4 mx-auto">
                 <div class="card card-plain card-blog mt-4">

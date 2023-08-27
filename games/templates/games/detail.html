@@ -7,7 +7,7 @@
 
 {% block content %}
 <header>
-    <div class="page-header min-vh-75">
+    <div class="page-header min-vh-50">
         <div class="oblique position-absolute top-0 h-100 d-md-block d-none">
         <div class="oblique-image bg-cover position-absolute fixed-top ms-auto h-100 z-index-0 ms-n6" style="background-image:url('{{game.card_image.url}}')"></div>
         </div>
@@ -15,7 +15,7 @@
         <div class="row">
             <div class="col-lg-6 col-md-7 d-flex justify-content-center flex-column">
             <h1 class="text-gradient text-primary">{{ game.name }}</h1>
-            <h1 class="mb-4">Rules chat and rulebook</h1>
+            <h2 class="mb-4">Rules chat and rulebook</h2>
             <p class="lead pe-5 me-5">
                 RulesBot.ai lets you chat with the {{ game.name }} rulebook.
             </p>
@@ -34,10 +34,36 @@
 </header>
 
 
-<section class="py-5">
-
+<section class="py-6">
     <div class="container">
-
+        <div class="row">
+            <div class="col-12">
+                <h3>We support more of your favorite games!</h3></div>
+        </div>
+        <div class="row justify-space-between py-2">
+            {% for game in games %}
+              {% include "games/_card.html" %}
+            {% endfor %}
+            <div class="col-md-4 mx-auto">
+                <div class="card card-plain card-blog mt-4">
+                <div class="card-image border-radius-lg position-relative">
+                    <a href="{% url 'chat:index' %}">
+                    <div class="blur-shadow-image">
+                        <img class="img card-img-top border-radius-lg move-on-hover" src="/static/img/more-games.jpg">
+                    </div>
+                    <div class="colored-shadow"></div></a>
+                </div>
+                <div class="card-body px-0">
+                    <h4>
+                    <a href="{% url 'chat:index' %}"" class="text-dark font-weight-bold">Didn't find what you're looking for?</a>
+                    </h4>
+                    <a href="{% url 'chat:index' %}"" class="btn btn-sm bg-gradient-primary">More games ...
+                    <i class="fas fa-arrow-right text-sm" aria-hidden="true"></i>
+                    </a>
+                </div>
+                </div>
+            </div>
+        </div>
     </div>
-</section>
+  </section>
 {% endblock %}
