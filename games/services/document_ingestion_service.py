@@ -6,12 +6,14 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from pypdf import PdfReader
 
 
-def ingest_document(document):
+def ingest_document(document, load_and_split_func=None):
     """
     Ingest a document by:
      - Downloading rules
      - Loading rules into the vector store.
     """
+    if load_and_split_func is None:
+        load_and_split_func = _load_and_split
 
     with tempfile.NamedTemporaryFile() as file:
         # Download and heck that the downloaded file is a valid PDF file
@@ -21,7 +23,7 @@ def ingest_document(document):
 
         # Load the rules from the PDF file and split into pages
         # TODO: Find a better way of splitting the PDF, this is problematic for sections that span multiple pages
-        sections = _load_and_split(file.name)
+        sections = load_and_split_func(file.name)
 
         # Add to vector store
         document.game.vector_store.add_documents(sections, document.id)

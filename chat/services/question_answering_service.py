@@ -8,10 +8,7 @@ def ask_question(question, chat_session):
     """
     Ask a question in the chat session and add response to the chat session.
     """
-    qa_chain = _setup_conversational_retrieval_chain(chat_session)
-    result = qa_chain(
-        {"question": question, "chat_history": _get_chat_history(chat_session)}
-    )
+    result = _query_conversational_retrieval_chain(question, chat_session)
 
     chat_session.message_set.create(message=question, message_type="human")
 
@@ -22,6 +19,13 @@ def ask_question(question, chat_session):
             document_id=source_document.metadata["document_id"],
             page_number=source_document.metadata["page"] + 1,  # 0-indexed
         )
+
+
+def _query_conversational_retrieval_chain(question, chat_session):
+    qa_chain = _setup_conversational_retrieval_chain(chat_session)
+    return qa_chain(
+        {"question": question, "chat_history": _get_chat_history(chat_session)}
+    )
 
 
 def _setup_conversational_retrieval_chain(chat_session):
