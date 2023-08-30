@@ -23,7 +23,7 @@
                 Ask questions about the rules and get answers instantly. No more searching through the rulebook for answers!
             </p>
             <div class="buttons">
-                <a href="{% url 'chat:create_chat_session' game.id %}" class="btn bg-gradient-primary mt-4">Ask questions now!</a>
+                <a href="{% url 'chat:create_chat_session' game.id %}" class="btn bg-gradient-primary mt-4" rel="nofollow">Ask questions now!</a>
                 </br>
                 <a href="{{ game.rulebook_url }}" class="text-info text-sm ms-2" target="_blank">Read the rulebook</a>
             </div>
