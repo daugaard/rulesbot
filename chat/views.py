@@ -16,14 +16,6 @@ class IndexView(generic.ListView):
         return Game.objects.order_by("name")
 
 
-class SessionIndexView(generic.ListView):
-    template_name = "chat/sessions.html"
-    context_object_name = "chat_sessions"
-
-    def get_queryset(self):
-        return ChatSession.objects.order_by("-created_at")
-
-
 def view_chat_session(request, session_slug):
     chat_session = get_object_or_404(ChatSession, session_slug=session_slug)
 

@@ -5,7 +5,6 @@ from . import views
 app_name = "chat"
 urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
-    path("sessions/", views.SessionIndexView.as_view(), name="sessions"),
     path(
         "create/<int:game_id>/", views.create_chat_session, name="create_chat_session"
     ),
