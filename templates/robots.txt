@@ -1,0 +1,4 @@
+User-Agent: *
+
+Disallow: /chat/*
+Allow: /chat
