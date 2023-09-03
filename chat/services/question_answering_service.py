@@ -1,7 +1,18 @@
-from langchain import OpenAI
+from langchain import PromptTemplate
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.schema.messages import AIMessage, HumanMessage
+
+prompt_template = """Use the following pieces of context to answer the question at the end. The question is about board game rules.
+If you don't know the answer, just say that you don't know and suggest the user look through the rulebook reference provided below the message, don't try to make up an answer.
+
+{context}
+
+Question: {question}
+Helpful Answer:"""
+QA_PROMPT = PromptTemplate(
+    template=prompt_template, input_variables=["context", "question"]
+)
 
 
 def ask_question(question, chat_session):
@@ -31,9 +42,10 @@ def _query_conversational_retrieval_chain(question, chat_session):
 def _setup_conversational_retrieval_chain(chat_session):
     return ConversationalRetrievalChain.from_llm(
         llm=ChatOpenAI(),
-        condense_question_llm=OpenAI(),
+        condense_question_llm=ChatOpenAI(temperature=0.3),
         retriever=chat_session.game.vector_store.index.as_retriever(k=3),
         return_source_documents=True,
+        combine_docs_chain_kwargs={"prompt": QA_PROMPT},
     )
 
 

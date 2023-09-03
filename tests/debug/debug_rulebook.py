@@ -41,7 +41,7 @@ def reingest_documents(game=Game):
     game.vector_store.clear()
     # ingest the documents
     for document in game.document_set.all():
-        ingest_document(document)
+        ingest_document(document, load_and_split_alternative)
 
 
 def run_query(game=Game, query=str):
