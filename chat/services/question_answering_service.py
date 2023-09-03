@@ -3,16 +3,13 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.schema.messages import AIMessage, HumanMessage
 
-prompt_template = """Use the following pieces of context to answer the question at the end. The question is about board game rules.
-If you don't know the answer, just say that you don't know and suggest the user look through the rulebook reference provided below the message, don't try to make up an answer.
+prompt_template = """Please use the following information to provide a clear and accurate answer to this question regarding the rules of the game %%GAME%%. If the question is not related to the rules of the specified game, kindly decline to answer.
 
 {context}
 
-Question: {question}
-Helpful Answer:"""
-QA_PROMPT = PromptTemplate(
-    template=prompt_template, input_variables=["context", "question"]
-)
+**User's Question:** {question}
+
+**Detailed Answer:**"""
 
 
 def ask_question(question, chat_session):
@@ -40,6 +37,13 @@ def _query_conversational_retrieval_chain(question, chat_session):
 
 
 def _setup_conversational_retrieval_chain(chat_session):
+    personalized_prompt_template = prompt_template.replace(
+        "%%GAME%%", chat_session.game.name
+    )
+    QA_PROMPT = PromptTemplate(
+        template=personalized_prompt_template, input_variables=["context", "question"]
+    )
+
     return ConversationalRetrievalChain.from_llm(
         llm=ChatOpenAI(),
         condense_question_llm=ChatOpenAI(temperature=0.3),
