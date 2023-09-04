@@ -1,26 +1,16 @@
 import shutil
 from unittest import mock
 
-from django.conf import settings
 from django.contrib.admin.sites import AdminSite
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from langchain.document_loaders import PyPDFLoader
-from redis.client import Redis as RedisClient
 
 from games.admin import GameAdmin
 from games.models import Document, Game
 from games.services.document_ingestion_service import ingest_document
 from games.vectorstores import GameVectorStore
-
-
-class RedisTestCase(TestCase):
-    def setUp(self):
-        self.redis_client = RedisClient.from_url(settings.REDIS_URL)
-
-    def tearDown(self):
-        self.redis_client.flushall()
 
 
 class GameIndexViewTests(TestCase):
@@ -74,7 +64,7 @@ class GameDetailViewTests(TestCase):
     # TODO: When we get there make sure non-ingested games are not displayed
 
 
-class DocumentIngestionServiceTest(RedisTestCase):
+class DocumentIngestionServiceTest(TestCase):
     def test_ingest_document(self):
         """
         Test that a document is ingested correctly
@@ -101,7 +91,7 @@ class DocumentIngestionServiceTest(RedisTestCase):
         self.assertTrue("Page\n1" in results[0].page_content)
 
 
-class GameVectorStoreTest(RedisTestCase):
+class GameVectorStoreTest(TestCase):
     def test_happy_path(self):
         game = Game.objects.create(name="Test Game")
 
@@ -136,7 +126,7 @@ class GameVectorStoreTest(RedisTestCase):
         self.assertEqual(result[0].metadata["document_id"], 0)
 
 
-class GameAdminTest(RedisTestCase):
+class GameAdminTest(TestCase):
     def get_ingest_documents_request(self):
         request = RequestFactory().get("/admin/games/game")
         setattr(request, "session", "session")
