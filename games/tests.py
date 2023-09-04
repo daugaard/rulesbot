@@ -27,20 +27,33 @@ class GameIndexViewTests(TestCase):
         """
         If one game exists, it is displayed.
         """
-        game = Game.objects.create(name="Test Game")
+        game = Game.objects.create(name="Test Game", ingested=True)
         response = self.client.get(reverse("games:index"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test Game")
         self.assertQuerysetEqual(response.context["games"], [game])
 
     def test_many_games(self):
-        games = [Game.objects.create(name=f"Test Game {i}") for i in range(10)]
+        games = [
+            Game.objects.create(name=f"Test Game {i}", ingested=True) for i in range(10)
+        ]
         response = self.client.get(reverse("games:index"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test Game 0")
         self.assertQuerysetEqual(response.context["games"], games)
 
-    # TODO: When we get there make sure non-ingested games are not displayed
+    def test_many_games_some_not_ingested(self):
+        games = [
+            Game.objects.create(name=f"Test Game {i}", ingested=True) for i in range(10)
+        ]
+        [
+            Game.objects.create(name=f"Non ingested Test Game {i}", ingested=False)
+            for i in range(10)
+        ]
+        response = self.client.get(reverse("games:index"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Test Game 0")
+        self.assertQuerysetEqual(response.context["games"], games)
 
 
 class GameDetailViewTests(TestCase):
