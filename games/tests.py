@@ -118,7 +118,7 @@ class GameVectorStoreTest(RedisTestCase):
         self.assertEqual(results[0].metadata["game_id"], game.id)
         self.assertEqual(results[0].metadata["document_id"], 0)
 
-    def test_load_from_database(self):
+    def test_load_from_storage(self):
         game = Game.objects.create(name="Test Game")
         docs = PyPDFLoader("games/fixtures/test.pdf").load_and_split()
 
