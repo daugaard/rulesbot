@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from django.conf import settings
 from django.core.files.base import ContentFile
 from langchain.embeddings import OpenAIEmbeddings
@@ -18,6 +20,7 @@ class GameVectorStore:
     This vector store will have all the game documents loaded and stored along side the game record in the database.
     """
 
+    @lru_cache(maxsize=3)  # TODO: Understand memory implications of doing this
     def __init__(self, game, embedding=None):
         self.game = game
 

@@ -9,7 +9,7 @@ class LandingView(generic.ListView):
     context_object_name = "games"
 
     def get_queryset(self):
-        return Game.objects.order_by("-created_at")[:5]
+        return Game.objects.filter(ingested=True).order_by("-created_at")[:5]
 
 
 def about_view(request):

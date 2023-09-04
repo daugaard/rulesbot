@@ -13,7 +13,7 @@ class IndexView(generic.ListView):
     context_object_name = "games"
 
     def get_queryset(self):
-        return Game.objects.order_by("name")
+        return Game.objects.filter(ingested=True).order_by("name")
 
 
 def view_chat_session(request, session_slug):

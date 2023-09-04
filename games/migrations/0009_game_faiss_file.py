@@ -16,4 +16,9 @@ class Migration(migrations.Migration):
                 blank=True, null=True, upload_to="games/faiss_indexes"
             ),
         ),
+        migrations.RunSQL(
+            """
+            UPDATE games_game SET ingested = false;
+            """
+        ),
     ]
