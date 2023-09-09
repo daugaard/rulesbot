@@ -7,6 +7,8 @@ prompt_template = """Please use the following information to provide a clear and
 
 {context}
 
+Ignore any variant or optional rules unless specifically instructed not to.
+
 **User's Question:** {question}
 
 **Detailed Answer:**"""
