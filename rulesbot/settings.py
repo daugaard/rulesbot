@@ -100,9 +100,6 @@ WSGI_APPLICATION = "rulesbot.wsgi.application"
 
 DATABASES = {"default": env.db()}
 
-# Vector store redis connection
-REDIS_URL = env("REDIS_URL")
-
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 

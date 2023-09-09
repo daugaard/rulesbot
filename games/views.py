@@ -9,12 +9,12 @@ class IndexView(generic.ListView):
     context_object_name = "games"
 
     def get_queryset(self):
-        return Game.objects.order_by("name")
+        return Game.objects.filter(ingested=True).order_by("name")
 
 
 def detail_view(request, slug):
     game = get_object_or_404(Game, slug=slug)
 
-    games = Game.objects.order_by("-created_at")[:5]
+    games = Game.objects.filter(ingested=True).order_by("-created_at")[:5]
 
     return render(request, "games/detail.html", {"game": game, "games": games})

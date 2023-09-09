@@ -1,9 +1,10 @@
-import redis
+from functools import lru_cache
+
 from django.conf import settings
+from django.core.files.base import ContentFile
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.embeddings.fake import DeterministicFakeEmbedding
-from langchain.vectorstores.redis import Redis
-from redis.client import Redis as RedisClient
+from langchain.vectorstores import FAISS
 
 EMBEDDING_LENGTH = 1536
 
@@ -19,21 +20,15 @@ class GameVectorStore:
     This vector store will have all the game documents loaded and stored along side the game record in the database.
     """
 
+    @lru_cache(maxsize=3)  # TODO: Understand memory implications of doing this
     def __init__(self, game, embedding=None):
         self.game = game
 
         if embedding is None:
             embedding = DEFAULT_EMBEDDING
         self.embedding = embedding
-        self.index = (
-            Redis.from_existing_index(
-                embedding=embedding,
-                redis_url=settings.REDIS_URL,
-                index_name=self._game_index_name(),
-            )
-            if self._index_exists()
-            else None
-        )
+        self.game = game
+        self.index = self._try_load_index()
 
     def add_documents(self, documents, document_id):
         """
@@ -50,39 +45,38 @@ class GameVectorStore:
         if self.index is not None:
             self.index.add_documents(documents)
         else:
-            self.index = Redis.from_documents(
+            self.index = FAISS.from_documents(
                 documents=documents,
-                redis_url=settings.REDIS_URL,
-                index_name=self._game_index_name(),
                 embedding=self.embedding,
             )
+        self._persist_index()
 
     def clear(self):
         """
         Clear the vector store
         """
-        if self.index:
-            self.index.drop_index(
-                index_name=self._game_index_name(), delete_documents=True
-            )
+        if self.game.faiss_file is not None:
+            self.game.faiss_file.delete()
+        self.index = None
 
-    def _index_exists(self):
+    def _try_load_index(self):
         """
-        Check if the index exists
+        If the index exists, load it. Otherwise return None
         """
-        client = RedisClient.from_url(settings.REDIS_URL)
         try:
-            client.ft(self._game_index_name()).info()
-        except redis.exceptions.ResponseError as e:
-            message = e.args[0] if len(e.args) > 0 else ""
-            if message.lower() == "unknown index name":
-                client.close()
-                return False
-            else:
-                raise e
+            return FAISS.deserialize_from_bytes(
+                self.game.faiss_file.read(), self.embedding
+            )
+        except ValueError as e:
+            if "attribute has no file associated with it." in str(e):
+                return None
+            raise e
 
-        client.close()
-        return True
-
-    def _game_index_name(self):
-        return f"game_{self.game.id}_documents"
+    def _persist_index(self):
+        """
+        Persist the index to storage
+        """
+        self.game.faiss_file.save(
+            self.game.slug, ContentFile(self.index.serialize_to_bytes())
+        )
+        self.game.save()

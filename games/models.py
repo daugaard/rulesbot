@@ -17,6 +17,9 @@ class Game(models.Model):
         size=[900, None],
         quality=75,
     )
+    faiss_file = models.FileField(
+        upload_to="games/faiss_indexes", null=True, blank=True
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

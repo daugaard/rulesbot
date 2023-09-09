@@ -1,19 +1,9 @@
 version: '3.9'
 
 volumes:
-  redis-data:
   postgres-data:
 
 services:
-  redis:
-    image: redis/redis-stack:latest
-    environment:
-      - REDIS_ARGS=--save 60 10  # save every 60 seconds if at least 10 keys changed
-    ports:
-      - 6379:6379
-      - 8001:8001
-    volumes:
-      - redis-data:/data
   postgres:
     image: postgres:alpine
     ports:
