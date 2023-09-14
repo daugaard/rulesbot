@@ -1,0 +1,35 @@
+{
+    "name": "Ark Nova",
+    "document_urls": [
+        "https://www.feuerland-spiele.de/fileadmin/game/Arche_Nova/Arche_Nova_Rules_EN_Low_2022_01.pdf"
+    ],
+    "question_sessions": [
+        {
+            "description": "Basic setup question",
+            "messages": [ ],
+            "question": "How much money do you start the game with?",
+            "answer": "You start with 25 money on your zoo map."
+        },
+        {
+            "description": "Basic setup question",
+            "messages": [ ],
+            "question": "How many Zoo cards do you start with?",
+            "answer": "You draw 8 zoo cards to start the game. Choose 4 of them to keep and discard the remaining 4 cards."
+        },
+        {
+            "description": "Basic follow-up question regarding solo play mode",
+            "messages": [
+                {
+                    "type": "human",
+                    "text": "Does Ark nova support solo play?"
+                },
+                {
+                    "type": "ai",
+                    "text": "Yes, Ark Nova supports solo play."
+                }
+            ],
+            "question": "How do you adjust the difficulty for that mode?",
+            "answer": "You can choose different difficulty levels by adjusting the starting appeal. Beginners start with 20 appeal, but you can start with 10 or even 0 appeal for a greater challenge."
+        }
+    ]
+}

@@ -26,6 +26,7 @@ django-resized = "^1.0.2"
 [tool.poetry.group.dev.dependencies]
 coverage = "^7.2.7"
 pre-commit = "^3.3.3"
+colorama = "^0.4.6"
 
 [build-system]
 requires = ["poetry-core"]

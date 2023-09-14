@@ -1,0 +1,20 @@
+{
+    "name": "3 Ring Circus",
+    "document_urls": [
+        "https://www.practicalai.io/3RC_Rulebook_ENG_v2_baja.pdf"
+    ],
+    "question_sessions": [
+        {
+            "description": "Basic setup question",
+            "messages": [ ],
+            "question": "Which player will start the game?",
+            "answer": "The player who last attended a circus performance"
+        },
+        {
+            "description": "Basic setup question",
+            "messages": [ ],
+            "question": "Where does Barnum start?",
+            "answer": "In a regular game of 3 Ring Circus, the Barnum Circus starts in Boston and moves counterclockwise."
+        }
+    ]
+}

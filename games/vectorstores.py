@@ -64,6 +64,7 @@ class GameVectorStore:
         If the index exists, load it. Otherwise return None
         """
         try:
+            self.game.faiss_file.open()
             return FAISS.deserialize_from_bytes(
                 self.game.faiss_file.read(), self.embedding
             )
