@@ -1,9 +1,11 @@
 import tempfile
 
 import requests
-from langchain.document_loaders import PyPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.schema import Document
+from langchain.text_splitter import TokenTextSplitter
 from pypdf import PdfReader
+
+from games.services.loaders.py_pdf_loader import load as py_pdf_loader
 
 
 def ingest_document(document, load_and_split_func=None):
@@ -23,7 +25,7 @@ def ingest_document(document, load_and_split_func=None):
 
         # Load the rules from the PDF file and split into pages
         # TODO: Find a better way of splitting the PDF, this is problematic for sections that span multiple pages
-        sections = load_and_split_func(file.name)
+        sections = load_and_split_func(file.name, py_pdf_loader)
 
         # Add to vector store
         document.game.vector_store.add_documents(sections, document.id)
@@ -32,7 +34,7 @@ def ingest_document(document, load_and_split_func=None):
     document.save()
 
 
-def _download_to_file(url, file):
+def _download_to_file(url: str, file: tempfile.NamedTemporaryFile) -> None:
     # Pretend to be a recent chrome
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
@@ -43,7 +45,7 @@ def _download_to_file(url, file):
     file.seek(0)
 
 
-def _valid_pdf(filename):
+def _valid_pdf(filename: str):
     """
     Check that the file is a valid PDF file
     """
@@ -54,11 +56,10 @@ def _valid_pdf(filename):
         return False
 
 
-def _load_and_split(filename):
-    loader = PyPDFLoader(filename)
-    pages = loader.load_and_split()
+def _load_and_split(filename: str, loader: callable) -> list[Document]:
+    pages = loader(filename)
     # At this point we have split the pdf into pages, but they can often be too large to send to the model so lets split into smaller chunks
-    sections = RecursiveCharacterTextSplitter(
-        chunk_size=2500, chunk_overlap=500
-    ).split_documents(pages)
+    sections = TokenTextSplitter(chunk_size=1000, chunk_overlap=200).split_documents(
+        pages
+    )
     return sections

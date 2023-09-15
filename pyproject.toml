@@ -21,6 +21,9 @@ django-storages = "^1.13.2"
 boto3 = "^1.28.33"
 pillow = "^10.0.0"
 django-resized = "^1.0.2"
+pdfminer-six = "^20221105"
+beautifulsoup4 = "^4.12.2"
+pdfplumber = "^0.10.2"
 
 
 [tool.poetry.group.dev.dependencies]
