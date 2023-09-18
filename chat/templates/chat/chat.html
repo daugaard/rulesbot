@@ -1,7 +1,7 @@
 {% extends "master.html" %}
 
 {% block title %}
-  Chat about {{chat_session.game.name}} rules
+  Chat with the {{chat_session.game.name}} rulebook
 {% endblock %}
 
 {% block meta %}
@@ -145,10 +145,11 @@
         var objDiv = document.getElementsByClassName("overflow-auto")[0];
         objDiv.scrollTop = objDiv.scrollHeight;
 
-        // Disable the button
+        // Disable the button and text field
         document.getElementById("chat-form-button").disabled = true;
         return true;
     };
+
 
 </script>
 {% endblock %}
