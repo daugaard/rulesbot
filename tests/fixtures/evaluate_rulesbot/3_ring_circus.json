@@ -13,7 +13,19 @@
         {
             "description": "Basic setup question",
             "messages": [ ],
+            "question": "How to determine the first player?",
+            "answer": "To determine the first player in the game 3 Ring Circus, the last player who attended a circus performance will be the starting player."
+        },
+        {
+            "description": "Basic setup question",
+            "messages": [ ],
             "question": "Where does Barnum start?",
+            "answer": "In a regular game of 3 Ring Circus, the Barnum Circus starts in Boston and moves counterclockwise."
+        },
+        {
+            "description": "Basic setup question",
+            "messages": [ ],
+            "question": "Where does Barnum start in a regular game?",
             "answer": "In a regular game of 3 Ring Circus, the Barnum Circus starts in Boston and moves counterclockwise."
         }
     ]
