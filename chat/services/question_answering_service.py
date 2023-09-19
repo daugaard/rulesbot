@@ -3,8 +3,12 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.schema.messages import AIMessage, HumanMessage
 
-prompt_template = """Please use the following information to provide a clear and accurate answer to this question regarding the rules of the game %%GAME%%. If the question is not related to the rules of the specified game, kindly decline to answer.
+prompt_template = """Please use the following information to provide a clear and accurate answer to this question regarding the rules of the game %%GAME%%.
+If the question is not related to the rules of the specified game, kindly decline to answer.
+If the question is not a question but a greeting or a thank you, kindly respond with a greeting or a thank you.
+If the question is claiming that the answer is wrong, kindly respond with an apology.
 
+**Context:**
 {context}
 
 Ignore any variant or optional rules unless specifically instructed not to.
@@ -12,6 +16,14 @@ Ignore any variant or optional rules unless specifically instructed not to.
 **User's Question:** {question}
 
 **Detailed Answer:**"""
+
+condense_question_template = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language. If the follow up question is a statement and not a question pass it through.
+
+**Conversation**:
+{chat_history}
+**Follow Up Question**: {question}
+**Standalone Question or Statement**:
+"""
 
 
 def ask_question(question, chat_session):
@@ -42,18 +54,24 @@ def _setup_conversational_retrieval_chain(chat_session):
     personalized_prompt_template = prompt_template.replace(
         "%%GAME%%", chat_session.game.name
     )
-    QA_PROMPT = PromptTemplate(
+    question_answering_prompt = PromptTemplate(
         template=personalized_prompt_template, input_variables=["context", "question"]
+    )
+    condense_question_prompt = PromptTemplate(
+        template=condense_question_template,
+        input_variables=["chat_history", "question"],
     )
 
     return ConversationalRetrievalChain.from_llm(
         llm=ChatOpenAI(),
-        condense_question_llm=ChatOpenAI(temperature=0.3),
+        condense_question_llm=ChatOpenAI(temperature=0.1),
+        condense_question_prompt=condense_question_prompt,
         retriever=chat_session.game.vector_store.index.as_retriever(
             search_kwargs={"k": 3}
         ),
         return_source_documents=True,
-        combine_docs_chain_kwargs={"prompt": QA_PROMPT},
+        combine_docs_chain_kwargs={"prompt": question_answering_prompt},
+        verbose=True,
     )
 
 
