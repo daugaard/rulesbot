@@ -1,7 +1,11 @@
 {
     "name": "Ark Nova",
-    "document_urls": [
-        "https://www.feuerland-spiele.de/fileadmin/game/Arche_Nova/Arche_Nova_Rules_EN_Low_2022_01.pdf"
+    "documents": [
+        {
+            "url": "https://www.feuerland-spiele.de/fileadmin/game/Arche_Nova/Arche_Nova_Rules_EN_Low_2022_01.pdf",
+            "ignore_pages": "1",
+            "setup_pages": "4,5"
+        }
     ],
     "question_sessions": [
         {

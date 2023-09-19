@@ -22,7 +22,7 @@ condense_question_template = """Given the following conversation and a follow up
 **Conversation**:
 {chat_history}
 **Follow Up Question**: {question}
-**Standalone Question or Statement**:
+**Standalone Question**:
 """
 
 

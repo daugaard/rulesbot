@@ -22,15 +22,10 @@ from games.models import Game
 from games.services.document_ingestion_service import ingest_document
 
 
-def load_alternative(filename):
+def load_and_split_alternative(filename):
     print("Loading and splitting document in alternative way")
     loader = PyPDFLoader(filename)
     pages = loader.load_and_split()
-    return pages
-
-
-def _split_alternative(pages):
-    # At this point we have split the pdf into pages, but they can often be too large to send to the model so lets split into smaller chunks
     sections = RecursiveCharacterTextSplitter(
         chunk_size=2500, chunk_overlap=500
     ).split_documents(pages)
@@ -47,8 +42,7 @@ def reingest_documents(game=Game):
     for document in game.document_set.all():
         ingest_document(
             document,
-            load_pages_func=load_alternative,
-            split_pages_to_sections_func=_split_alternative,
+            # load_and_split_func=load_and_split_alternative,
         )
 
 

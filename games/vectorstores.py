@@ -78,6 +78,7 @@ class GameVectorStore:
         Persist the index to storage
         """
         self.game.faiss_file.save(
-            self.game.slug, ContentFile(self.index.serialize_to_bytes())
+            f"{self.game.slug}-{self.game.id}",
+            ContentFile(self.index.serialize_to_bytes()),
         )
         self.game.save()
