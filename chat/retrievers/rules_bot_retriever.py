@@ -15,17 +15,19 @@ class RulesBotRetriever(BaseRetriever):
     search_kwargs: dict
 
     def get_relevant_documents(self, question):
+        # TODO: Debug relevancy score and figure out if we should filter at a threshold
         docs = self.index.similarity_search(question, **self.search_kwargs)
 
         if self._is_setup_question(question):
-            # TODO: Debug relevancy score and figure out if we should filter at a threshold
-            setup_documents = self.index.similarity_search(
-                "setup", filter={"setup_page": True}
-            )
-            # Remove the N last results from docs where N is the number of setup documents
-            if len(setup_documents) > 0:
-                docs = docs[: -len(setup_documents)]
-                docs = docs + setup_documents
+            # If the setup page is not already in the results, add it
+            if not any(doc.metadata.get("setup_page") for doc in docs):
+                setup_documents = self.index.similarity_search(
+                    "setup", filter={"setup_page": True}
+                )
+                # Remove the N last results from docs where N is the number of setup documents
+                if len(setup_documents) > 0:
+                    docs = docs[: -len(setup_documents)]
+                    docs = docs + setup_documents
 
         return docs
 

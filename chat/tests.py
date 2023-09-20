@@ -185,6 +185,26 @@ class RulesBotRetrieverTests(TestCase):
             [doc.metadata.get("setup_page") for doc in docs], [None, None, True]
         )
 
+    def test_setup_question_no_special_case(self):
+        index = FAISS.from_documents(
+            documents=self.documents_for_test_with_setup_page(),
+            embedding=DeterministicFakeEmbedding(size=1536),
+        )
+
+        docs = RulesBotRetriever(
+            index=index, search_kwargs={"k": 3}
+        ).get_relevant_documents("instructions")
+
+        self.assertEqual(len(docs), 3)
+        self.assertEqual(
+            [doc.metadata.get("setup_page") for doc in docs],
+            [
+                None,
+                None,
+                True,
+            ],  # Can still include setup page even if it doesn't hit our special case
+        )
+
     def test_setup_question_special_case_no_setup_page(self):
         # Initialze FAISS index
         index = FAISS.from_documents(
