@@ -31,8 +31,8 @@ class RulesBotRetriever(BaseRetriever):
                 setup_documents = self.index.similarity_search(
                     "setup", filter={"setup_page": True}
                 )
-                # Remove the N last results from docs where N is the number of setup documents
                 if len(setup_documents) > 0:
+                    # Remove the N last results from docs where N is the number of setup documents and add the setup documents
                     docs = docs[: -len(setup_documents)]
                     docs = docs + setup_documents
 

@@ -3,7 +3,7 @@ import tempfile
 import requests
 from pypdf import PdfReader
 
-from games.services.loaders.pdf_loader_and_summarizer import load_and_split
+from games.loaders.pdf_loader_and_summarizer import load_and_split
 
 
 def ingest_document(document, load_and_split_func=None):

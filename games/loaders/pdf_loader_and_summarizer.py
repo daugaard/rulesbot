@@ -14,7 +14,7 @@ def load_and_split(filename, document):
     """
     pages = _load_pages(filename)
 
-    # Remove ignored pages
+    # Remove ignored pages if the document has ignore pages defined
     if document.ignore_pages:
         pages = _remove_ignore_pages(pages, document.ignore_pages)
 
@@ -25,7 +25,7 @@ def load_and_split(filename, document):
 
     sections = _split_pages_to_sections(pages)
 
-    # Combine setup pages
+    # Combine setup pages if the document has setup pages defined
     if document.setup_pages:
         setup_document = _extract_setup_instructions(pages, document.setup_pages)
         sections.append(setup_document)
@@ -64,9 +64,7 @@ def _extract_setup_instructions(pages, setup_pages):
     setup_page_content = "Start of game setup instructions:\n\n"
     setup_page_content += "\n".join([page.page_content for page in setup_pages])
 
-    # TODO: Add guard to only do this if we have the checkbox enabled
-    # summarized_page_content = _summarize_setup_instructions(setup_page_content)
-    summarized_page_content = setup_page_content
+    summarized_page_content = _summarize_setup_instructions(setup_page_content)
 
     return Document(page_content=summarized_page_content, metadata=setup_metadata)
 
@@ -76,7 +74,7 @@ def _summarize_setup_instructions(setup_page_content):
     Use ChatGPT to summarize the setup instructions.
     """
     llm = ChatOpenAI(temperature=0.1)
-    prompt = f"Provided setup instructions for a board game. Please clean them up and summarize them into an easy-to-read and understand format. \n\n{setup_page_content}\n\nSummary:"
+    prompt = f"Provided are setup instructions for a board game. Please clean them up and summarize them into an easy-to-read format. \n\n{setup_page_content}\n\nSummary:"
     return llm.predict(prompt)
 
 
@@ -86,7 +84,7 @@ def _clean_up_page(page_content):
     """
     print("Cleaning up page ... ")
     llm = ChatOpenAI(temperature=0.1)
-    prompt = f"Please clean up the following page of rules to make it easier to read and understand. \n\n{page_content}\n\nCleaned up rules:"
+    prompt = f"Please clean up the following page of rules to make it easier to read. \n\n{page_content}\n\nCleaned up rules:"
     print(f"Input: {page_content}")
     cleaned_up_page_content = llm.predict(prompt)
     print(f"Output: {cleaned_up_page_content}")
