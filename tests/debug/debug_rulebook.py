@@ -66,6 +66,10 @@ def run_query(game=Game, query=str):
         print("Page: " + str(source_document.metadata["page"]))
         print("Length: " + str(len(source_document.page_content)))
         print("Setup page: " + str(source_document.metadata.get("setup_page", False)))
+        print(
+            "Relevancy score: "
+            + str(source_document.metadata.get("relevancy_score", 0))
+        )
         print("Context: \n" + source_document.page_content)
         print("=======================================")
 

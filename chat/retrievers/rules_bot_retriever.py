@@ -16,7 +16,14 @@ class RulesBotRetriever(BaseRetriever):
 
     def get_relevant_documents(self, question):
         # TODO: Debug relevancy score and figure out if we should filter at a threshold
-        docs = self.index.similarity_search(question, **self.search_kwargs)
+        docs_with_score = self.index.similarity_search_with_relevance_scores(
+            question, **self.search_kwargs
+        )
+
+        docs = []
+        for doc, score in docs_with_score:
+            doc.metadata["relevancy_score"] = score
+            docs.append(doc)
 
         if self._is_setup_question(question):
             # If the setup page is not already in the results, add it
