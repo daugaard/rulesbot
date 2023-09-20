@@ -3,6 +3,8 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.schema.messages import AIMessage, HumanMessage
 
+from chat.retrievers.rules_bot_retriever import RulesBotRetriever
+
 prompt_template = """Please use the following information to provide a clear and accurate answer to this question regarding the rules of the game %%GAME%%.
 If the question is not related to the rules of the specified game, kindly decline to answer.
 If the question is not a question but a greeting or a thank you, kindly respond with a greeting or a thank you.
@@ -66,8 +68,8 @@ def _setup_conversational_retrieval_chain(chat_session):
         llm=ChatOpenAI(temperature=0.3),
         condense_question_llm=ChatOpenAI(temperature=0.1),
         condense_question_prompt=condense_question_prompt,
-        retriever=chat_session.game.vector_store.index.as_retriever(
-            search_kwargs={"k": 3}
+        retriever=RulesBotRetriever(
+            index=chat_session.game.vector_store.index, search_kwargs={"k": 3}
         ),
         return_source_documents=True,
         combine_docs_chain_kwargs={"prompt": question_answering_prompt},
