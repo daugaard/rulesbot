@@ -103,6 +103,56 @@ class DocumentIngestionServiceTest(TestCase):
         self.assertEqual(results[0].metadata["document_id"], document.id)
         self.assertTrue("Page 1" in results[0].page_content)
 
+    def test_ingest_ignore_pages(self):
+        """
+        Test that a document is ingested correctly
+        """
+        game = Game.objects.create(name="Test Game")
+        document = Document.objects.create(game=game, url="some-url", ignore_pages="2")
+
+        # Patch / mock document ingestion._download_to_file and replace it with a function that returns a file with the contents of the test.pdf file
+        with mock.patch(
+            "games.services.document_ingestion_service._download_to_file"
+        ) as _download_to_file_mock:
+            _download_to_file_mock.side_effect = lambda _, file: shutil.copyfile(
+                "games/fixtures/test.pdf", file.name
+            )
+            ingest_document(document)
+
+        # try to make a similarity search for the document
+        results = game.vector_store.index.similarity_search("This is some text")
+
+        self.assertEqual(len(results), 1)  # Only one page should be ingested
+        self.assertEqual(results[0].metadata["page"], 0)
+        self.assertEqual(results[0].metadata["game_id"], game.id)
+        self.assertEqual(results[0].metadata["document_id"], document.id)
+        self.assertTrue("Page 1" in results[0].page_content)
+
+    def test_ingest_setup_pages(self):
+        """
+        Test that a document is ingested correctly
+        """
+        game = Game.objects.create(name="Test Game")
+        document = Document.objects.create(game=game, url="some-url", setup_pages="2")
+
+        # Patch / mock document ingestion._download_to_file and replace it with a function that returns a file with the contents of the test.pdf file
+        with mock.patch(
+            "games.services.document_ingestion_service._download_to_file"
+        ) as _download_to_file_mock:
+            _download_to_file_mock.side_effect = lambda _, file: shutil.copyfile(
+                "games/fixtures/test.pdf", file.name
+            )
+            ingest_document(document)
+
+        # try to make a similarity search for the document
+        results = game.vector_store.index.similarity_search("Setup instructions")
+
+        self.assertEqual(len(results), 3)  # Both pages - plus a setup page
+        self.assertEqual(results[0].metadata["page"], 1)
+        self.assertEqual(results[0].metadata["game_id"], game.id)
+        self.assertEqual(results[0].metadata["document_id"], document.id)
+        self.assertTrue("Page 2" in results[0].page_content)
+
 
 class GameVectorStoreTest(TestCase):
     def test_happy_path(self):
