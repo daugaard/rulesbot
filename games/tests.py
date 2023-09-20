@@ -95,13 +95,13 @@ class DocumentIngestionServiceTest(TestCase):
             ingest_document(document)
 
         # try to make a similarity search for the document
-        results = game.vector_store.index.similarity_search("page 1")
+        results = game.vector_store.index.similarity_search("This is some text")
 
         self.assertEqual(len(results), 2)
         self.assertEqual(results[0].metadata["page"], 0)
         self.assertEqual(results[0].metadata["game_id"], game.id)
         self.assertEqual(results[0].metadata["document_id"], document.id)
-        self.assertTrue("Page\n1" in results[0].page_content)
+        self.assertTrue("Page 1" in results[0].page_content)
 
 
 class GameVectorStoreTest(TestCase):
@@ -114,7 +114,7 @@ class GameVectorStoreTest(TestCase):
 
         game_vector_store.add_documents(docs, 0)
 
-        results = game_vector_store.index.similarity_search("page 1")
+        results = game_vector_store.index.similarity_search("This is some text")
 
         self.assertEqual(len(results), 2)
         self.assertEqual(results[0].metadata["page"], 0)
@@ -165,13 +165,13 @@ class GameAdminTest(TestCase):
         game.refresh_from_db()
 
         # try to make a similarity search for the document
-        results = game.vector_store.index.similarity_search("page 1")
+        results = game.vector_store.index.similarity_search("This is some text")
 
         self.assertEqual(len(results), 2)
         self.assertEqual(results[0].metadata["page"], 0)
         self.assertEqual(results[0].metadata["game_id"], game.id)
         self.assertEqual(results[0].metadata["document_id"], document.id)
-        self.assertTrue("Page\n1" in results[0].page_content)
+        self.assertTrue("Page 1" in results[0].page_content)
 
     def test_ingest_documents_twice(self):
         game = Game.objects.create(name="Test Game")
@@ -196,13 +196,13 @@ class GameAdminTest(TestCase):
         game.refresh_from_db()
 
         # try to make a similarity search for the document
-        results = game.vector_store.index.similarity_search("page 1")
+        results = game.vector_store.index.similarity_search("This is some text")
 
         self.assertEqual(len(results), 2)  # Still should only show 2 results
         self.assertEqual(results[0].metadata["page"], 0)
         self.assertEqual(results[0].metadata["game_id"], game.id)
         self.assertEqual(results[0].metadata["document_id"], document.id)
-        self.assertTrue("Page\n1" in results[0].page_content)
+        self.assertTrue("Page 1" in results[0].page_content)
 
 
 class GameModelTest(TestCase):
