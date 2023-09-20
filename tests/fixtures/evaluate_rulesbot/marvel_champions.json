@@ -1,0 +1,24 @@
+{
+    "name": "Marvel Champions",
+    "documents": [
+        {
+            "url": "https://images-cdn.fantasyflightgames.com/filer_public/b6/30/b630ddfe-e745-435b-a284-572dd510e15d/mc_rulesreference_v15-compressed.pdf",
+            "ignore_pages": "1,2,3,54,55,56",
+            "setup_pages": "43"
+        }
+    ],
+    "question_sessions": [
+        {
+            "description": "Basic question",
+            "messages": [ ],
+            "question": "How much indirect damage can you assign to your hero when you have a tough status card?",
+            "answer": "You can divide indirect damage as the player chooses among characters under their control."
+        },
+        {
+            "description": "Basic question",
+            "messages": [ ],
+            "question": "How do you assign indirect damage?",
+            "answer": "Indirect damage dealt to a player can be divided as that player chooses among characters under their control."
+        }
+    ]
+}

@@ -27,7 +27,7 @@ def load_and_split_alternative(filename):
     loader = PyPDFLoader(filename)
     pages = loader.load_and_split()
     sections = RecursiveCharacterTextSplitter(
-        chunk_size=2500, chunk_overlap=500
+        chunk_size=1000, chunk_overlap=100
     ).split_documents(pages)
     return sections
 
@@ -65,7 +65,8 @@ def run_query(game=Game, query=str):
         print("Document: " + source_document.metadata["source"])
         print("Page: " + str(source_document.metadata["page"]))
         print("Length: " + str(len(source_document.page_content)))
-        print("Context: " + source_document.page_content)
+        print("Setup page: " + str(source_document.metadata.get("setup_page", False)))
+        print("Context: \n" + source_document.page_content)
         print("=======================================")
 
 

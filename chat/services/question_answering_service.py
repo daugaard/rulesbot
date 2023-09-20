@@ -63,7 +63,7 @@ def _setup_conversational_retrieval_chain(chat_session):
     )
 
     return ConversationalRetrievalChain.from_llm(
-        llm=ChatOpenAI(),
+        llm=ChatOpenAI(temperature=0.3),
         condense_question_llm=ChatOpenAI(temperature=0.1),
         condense_question_prompt=condense_question_prompt,
         retriever=chat_session.game.vector_store.index.as_retriever(
@@ -71,7 +71,7 @@ def _setup_conversational_retrieval_chain(chat_session):
         ),
         return_source_documents=True,
         combine_docs_chain_kwargs={"prompt": question_answering_prompt},
-        verbose=True,
+        verbose=False,
     )
 
 

@@ -1,5 +1,5 @@
 from langchain.chat_models import ChatOpenAI
-from langchain.document_loaders import PyPDFLoader
+from langchain.document_loaders import PyMuPDFLoader
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
@@ -18,10 +18,6 @@ def load_and_split(filename, document):
     if document.ignore_pages:
         pages = _remove_ignore_pages(pages, document.ignore_pages)
 
-    # Combine setup pages
-    if document.setup_pages:
-        pages = _combine_setup_pages(pages, document.setup_pages)
-
     # Clean up the pages
     # TODO: Add guard to only do this if we have the checkbox enabled
     # for page in pages:
@@ -29,12 +25,17 @@ def load_and_split(filename, document):
 
     sections = _split_pages_to_sections(pages)
 
+    # Combine setup pages
+    if document.setup_pages:
+        setup_document = _extract_setup_instructions(pages, document.setup_pages)
+        sections.append(setup_document)
+
     return sections
 
 
 def _load_pages(filename):
-    loader = PyPDFLoader(filename)
-    return loader.load_and_split()
+    loader = PyMuPDFLoader(filename)
+    return loader.load()
 
 
 def _split_pages_to_sections(pages):
@@ -51,25 +52,23 @@ def _remove_ignore_pages(pages, pages_to_ignore):
     return [page for page in pages if page.metadata["page"] not in ignore_page_numbers]
 
 
-def _combine_setup_pages(pages, setup_pages):
+def _extract_setup_instructions(pages, setup_pages):
     setup_page_numbers = [int(x) for x in setup_pages.split(",")]
     setup_page_numbers = [x - 1 for x in setup_page_numbers]  # 1-indexed to 0-indexed
     setup_pages = [
         page for page in pages if page.metadata["page"] in setup_page_numbers
     ]
 
-    setup_metadata = setup_pages[0].metadata
+    setup_metadata = setup_pages[0].metadata.copy()
     setup_metadata["setup_page"] = True
     setup_page_content = "Start of game setup instructions:\n\n"
     setup_page_content += "\n".join([page.page_content for page in setup_pages])
 
-    summarized_page_content = _summarize_setup_instructions(setup_page_content)
-    # Add new setup section
-    pages.insert(
-        0, Document(page_content=summarized_page_content, metadata=setup_metadata)
-    )
+    # TODO: Add guard to only do this if we have the checkbox enabled
+    # summarized_page_content = _summarize_setup_instructions(setup_page_content)
+    summarized_page_content = setup_page_content
 
-    return pages
+    return Document(page_content=summarized_page_content, metadata=setup_metadata)
 
 
 def _summarize_setup_instructions(setup_page_content):
