@@ -18,12 +18,14 @@ class RulesBotRetriever(BaseRetriever):
         docs = self.index.similarity_search(question, **self.search_kwargs)
 
         if self._is_setup_question(question):
+            # TODO: Debug relevancy score and figure out if we should filter at a threshold
             setup_documents = self.index.similarity_search(
                 "setup", filter={"setup_page": True}
             )
             # Remove the N last results from docs where N is the number of setup documents
-            docs = docs[: -len(setup_documents)]
-            docs = docs + setup_documents
+            if len(setup_documents) > 0:
+                docs = docs[: -len(setup_documents)]
+                docs = docs + setup_documents
 
         return docs
 
@@ -35,4 +37,9 @@ class RulesBotRetriever(BaseRetriever):
             or "set-up" in question
             or "start with" in question
             or "starts with" in question
+            or "start the game" in question
+            or "begin with" in question
+            or "begins with" in question
+            or "start of the game" in question
+            or "beginning of the game" in question
         )

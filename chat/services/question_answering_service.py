@@ -65,7 +65,7 @@ def _setup_conversational_retrieval_chain(chat_session):
     )
 
     return ConversationalRetrievalChain.from_llm(
-        llm=ChatOpenAI(temperature=0.3),
+        llm=ChatOpenAI(),
         condense_question_llm=ChatOpenAI(temperature=0.1),
         condense_question_prompt=condense_question_prompt,
         retriever=RulesBotRetriever(

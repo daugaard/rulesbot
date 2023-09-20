@@ -182,6 +182,22 @@ class RulesBotRetrieverTests(TestCase):
 
         self.assertEqual(len(docs), 3)  # Still only returns 3 results
         self.assertEqual(
-            docs[2].metadata["page"], 42
-        )  # But the setup page is the last result
-        self.assertEqual(docs[2].metadata["setup_page"], True)
+            [doc.metadata.get("setup_page") for doc in docs], [None, None, True]
+        )
+
+    def test_setup_question_special_case_no_setup_page(self):
+        # Initialze FAISS index
+        index = FAISS.from_documents(
+            documents=self.documents_for_test_without_setup_page(),
+            embedding=DeterministicFakeEmbedding(size=1536),
+        )
+
+        docs = RulesBotRetriever(
+            index=index, search_kwargs={"k": 3}
+        ).get_relevant_documents("how many pieces do you start with?")
+
+        self.assertEqual(len(docs), 3)  # Return 3 results
+        # None are a setup page because there are no setup pages
+        self.assertEqual(
+            [doc.metadata.get("setup_page") for doc in docs], [None, None, None]
+        )
