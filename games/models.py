@@ -53,6 +53,13 @@ class Document(models.Model):
     )  # URL to display to users
     ingested = models.BooleanField(default=False)
 
+    ignore_pages = models.CharField(
+        max_length=500, null=True, blank=True
+    )  # Comma separated list of pages to ignore
+    setup_pages = models.CharField(
+        max_length=500, null=True, blank=True
+    )  # Comma separated list of pages to use for setup
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

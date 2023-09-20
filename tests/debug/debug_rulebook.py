@@ -26,9 +26,8 @@ def load_and_split_alternative(filename):
     print("Loading and splitting document in alternative way")
     loader = PyPDFLoader(filename)
     pages = loader.load_and_split()
-    # At this point we have split the pdf into pages, but they can often be too large to send to the model so lets split into smaller chunks
     sections = RecursiveCharacterTextSplitter(
-        chunk_size=2500, chunk_overlap=500
+        chunk_size=1000, chunk_overlap=100
     ).split_documents(pages)
     return sections
 
@@ -41,7 +40,10 @@ def reingest_documents(game=Game):
     game.vector_store.clear()
     # ingest the documents
     for document in game.document_set.all():
-        ingest_document(document, load_and_split_alternative)
+        ingest_document(
+            document,
+            # load_and_split_func=load_and_split_alternative,
+        )
 
 
 def run_query(game=Game, query=str):
@@ -63,7 +65,12 @@ def run_query(game=Game, query=str):
         print("Document: " + source_document.metadata["source"])
         print("Page: " + str(source_document.metadata["page"]))
         print("Length: " + str(len(source_document.page_content)))
-        print("Context: " + source_document.page_content)
+        print("Setup page: " + str(source_document.metadata.get("setup_page", False)))
+        print(
+            "Relevancy score: "
+            + str(source_document.metadata.get("relevancy_score", 0))
+        )
+        print("Context: \n" + source_document.page_content)
         print("=======================================")
 
 

@@ -59,8 +59,12 @@ def parse_game_json(filename: Path) -> dict:
 
 def setup_game(game: dict) -> Game:
     game_obj = Game.objects.create(name=game["name"])
-    for url in game["document_urls"]:
-        game_obj.document_set.create(url=url)
+    for document in game["documents"]:
+        game_obj.document_set.create(
+            url=document.get("url"),
+            ignore_pages=document.get("ignore_pages", ""),
+            setup_pages=document.get("setup_pages", ""),
+        )
     return game_obj
 
 

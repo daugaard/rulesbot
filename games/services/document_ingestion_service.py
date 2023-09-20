@@ -1,9 +1,9 @@
 import tempfile
 
 import requests
-from langchain.document_loaders import PyPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from pypdf import PdfReader
+
+from games.loaders.pdf_loader_and_summarizer import load_and_split
 
 
 def ingest_document(document, load_and_split_func=None):
@@ -12,8 +12,8 @@ def ingest_document(document, load_and_split_func=None):
      - Downloading rules
      - Loading rules into the vector store.
     """
-    if load_and_split_func is None:
-        load_and_split_func = _load_and_split
+    if not load_and_split_func:
+        load_and_split_func = load_and_split
 
     with tempfile.NamedTemporaryFile() as file:
         # Download and heck that the downloaded file is a valid PDF file
@@ -21,9 +21,8 @@ def ingest_document(document, load_and_split_func=None):
         if not _valid_pdf(file.name):
             raise ValueError("Invalid PDF file")
 
-        # Load the rules from the PDF file and split into pages
-        # TODO: Find a better way of splitting the PDF, this is problematic for sections that span multiple pages
-        sections = load_and_split_func(file.name)
+        # Load the rules from the PDF file and split into sections
+        sections = load_and_split_func(file.name, document)
 
         # Add to vector store
         document.game.vector_store.add_documents(sections, document.id)
@@ -52,13 +51,3 @@ def _valid_pdf(filename):
         return True
     except:
         return False
-
-
-def _load_and_split(filename):
-    loader = PyPDFLoader(filename)
-    pages = loader.load_and_split()
-    # At this point we have split the pdf into pages, but they can often be too large to send to the model so lets split into smaller chunks
-    sections = RecursiveCharacterTextSplitter(
-        chunk_size=2500, chunk_overlap=500
-    ).split_documents(pages)
-    return sections

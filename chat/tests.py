@@ -3,9 +3,12 @@ from unittest import mock
 from django.test import TestCase
 from django.urls import reverse
 from langchain.document_loaders.base import Document
+from langchain.embeddings.fake import DeterministicFakeEmbedding
 from langchain.schema.messages import AIMessage, HumanMessage
+from langchain.vectorstores import FAISS
 
 from chat.models import ChatSession
+from chat.retrievers.rules_bot_retriever import RulesBotRetriever
 from chat.services.question_answering_service import _get_chat_history, ask_question
 from games.models import Game
 
@@ -121,3 +124,100 @@ class QuestionAnsweringServiceTests(TestCase):
         self.assertEqual(
             ai_message.sourcedocument_set.first().page_number, 43
         )  # 0-indexed
+
+
+class RulesBotRetrieverTests(TestCase):
+    def documents_for_test_without_setup_page(self):
+        return [
+            Document(
+                page_content="Chess game instructions",
+                metadata={"document_id": 1, "page": 42},
+            ),
+            Document(
+                page_content="Checkers game instructions",
+                metadata={"document_id": 1, "page": 43},
+            ),
+            Document(
+                page_content="Clue game instructions",
+                metadata={"document_id": 1, "page": 44},
+            ),
+            Document(
+                page_content="Monopoly game instructions",
+                metadata={"document_id": 1, "page": 45},
+            ),
+        ]
+
+    def documents_for_test_with_setup_page(self):
+        return self.documents_for_test_without_setup_page() + [
+            Document(
+                page_content="Setup instructions for a game",
+                metadata={"document_id": 1, "page": 42, "setup_page": True},
+            ),
+        ]
+
+    def test_happy_path(self):
+        # Initialze FAISS index
+        index = FAISS.from_documents(
+            documents=self.documents_for_test_without_setup_page(),
+            embedding=DeterministicFakeEmbedding(size=1536),
+        )
+
+        docs = RulesBotRetriever(
+            index=index, search_kwargs={"k": 3}
+        ).get_relevant_documents("clue")
+
+        self.assertEqual(len(docs), 3)
+        self.assertEqual(docs[0].metadata["page"], 44)
+
+    def test_setup_question_special_case(self):
+        # Initialze FAISS index
+        index = FAISS.from_documents(
+            documents=self.documents_for_test_with_setup_page(),
+            embedding=DeterministicFakeEmbedding(size=1536),
+        )
+
+        docs = RulesBotRetriever(
+            index=index, search_kwargs={"k": 3}
+        ).get_relevant_documents("how many pieces do you start with?")
+
+        self.assertEqual(len(docs), 3)  # Still only returns 3 results
+        self.assertEqual(
+            [doc.metadata.get("setup_page") for doc in docs], [None, None, True]
+        )
+
+    def test_setup_question_no_special_case(self):
+        index = FAISS.from_documents(
+            documents=self.documents_for_test_with_setup_page(),
+            embedding=DeterministicFakeEmbedding(size=1536),
+        )
+
+        docs = RulesBotRetriever(
+            index=index, search_kwargs={"k": 3}
+        ).get_relevant_documents("instructions")
+
+        self.assertEqual(len(docs), 3)
+        self.assertEqual(
+            [doc.metadata.get("setup_page") for doc in docs],
+            [
+                None,
+                None,
+                True,
+            ],  # Can still include setup page even if it doesn't hit our special case
+        )
+
+    def test_setup_question_special_case_no_setup_page(self):
+        # Initialze FAISS index
+        index = FAISS.from_documents(
+            documents=self.documents_for_test_without_setup_page(),
+            embedding=DeterministicFakeEmbedding(size=1536),
+        )
+
+        docs = RulesBotRetriever(
+            index=index, search_kwargs={"k": 3}
+        ).get_relevant_documents("how many pieces do you start with?")
+
+        self.assertEqual(len(docs), 3)  # Return 3 results
+        # None are a setup page because there are no setup pages
+        self.assertEqual(
+            [doc.metadata.get("setup_page") for doc in docs], [None, None, None]
+        )

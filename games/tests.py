@@ -1,6 +1,7 @@
 import shutil
 from unittest import mock
 
+import langchain
 from django.contrib.admin.sites import AdminSite
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import RequestFactory, TestCase
@@ -95,13 +96,71 @@ class DocumentIngestionServiceTest(TestCase):
             ingest_document(document)
 
         # try to make a similarity search for the document
-        results = game.vector_store.index.similarity_search("page 1")
+        results = game.vector_store.index.similarity_search("This is some text")
 
         self.assertEqual(len(results), 2)
         self.assertEqual(results[0].metadata["page"], 0)
         self.assertEqual(results[0].metadata["game_id"], game.id)
         self.assertEqual(results[0].metadata["document_id"], document.id)
-        self.assertTrue("Page\n1" in results[0].page_content)
+        self.assertTrue("Page 1" in results[0].page_content)
+
+    def test_ingest_ignore_pages(self):
+        """
+        Test that a document is ingested correctly
+        """
+        game = Game.objects.create(name="Test Game")
+        document = Document.objects.create(game=game, url="some-url", ignore_pages="2")
+
+        # Patch / mock document ingestion._download_to_file and replace it with a function that returns a file with the contents of the test.pdf file
+        with mock.patch(
+            "games.services.document_ingestion_service._download_to_file"
+        ) as _download_to_file_mock:
+            _download_to_file_mock.side_effect = lambda _, file: shutil.copyfile(
+                "games/fixtures/test.pdf", file.name
+            )
+            ingest_document(document)
+
+        # try to make a similarity search for the document
+        results = game.vector_store.index.similarity_search("This is some text")
+
+        self.assertEqual(len(results), 1)  # Only one page should be ingested
+        self.assertEqual(results[0].metadata["page"], 0)
+        self.assertEqual(results[0].metadata["game_id"], game.id)
+        self.assertEqual(results[0].metadata["document_id"], document.id)
+        self.assertTrue("Page 1" in results[0].page_content)
+
+    def test_ingest_setup_pages(self):
+        """
+        Test that a document is ingested correctly
+        """
+        game = Game.objects.create(name="Test Game")
+        document = Document.objects.create(game=game, url="some-url", setup_pages="2")
+
+        # Patch / mock document ingestion._download_to_file and replace it with a function that returns a file with the contents of the test.pdf file
+        with mock.patch(
+            "games.services.document_ingestion_service._download_to_file"
+        ) as _download_to_file_mock:
+            _download_to_file_mock.side_effect = lambda _, file: shutil.copyfile(
+                "games/fixtures/test.pdf", file.name
+            )
+            # Mock OpenAI API for summarization
+            with mock.patch(
+                "games.loaders.pdf_loader_and_summarizer.ChatOpenAI"
+            ) as chat_opem_ai_mock:
+                llm = mock.Mock(spec=langchain.chat_models.ChatOpenAI)
+                llm.predict.return_value = "some summarized text"
+                chat_opem_ai_mock.return_value = llm
+
+                ingest_document(document)
+
+        # try to make a similarity search for the document
+        results = game.vector_store.index.similarity_search("Setup instructions")
+
+        self.assertEqual(len(results), 3)  # Both pages - plus a setup page
+        self.assertEqual(results[0].metadata["page"], 1)
+        self.assertEqual(results[0].metadata["game_id"], game.id)
+        self.assertEqual(results[0].metadata["document_id"], document.id)
+        self.assertTrue("Page 2" in results[0].page_content)
 
 
 class GameVectorStoreTest(TestCase):
@@ -114,7 +173,7 @@ class GameVectorStoreTest(TestCase):
 
         game_vector_store.add_documents(docs, 0)
 
-        results = game_vector_store.index.similarity_search("page 1")
+        results = game_vector_store.index.similarity_search("This is some text")
 
         self.assertEqual(len(results), 2)
         self.assertEqual(results[0].metadata["page"], 0)
@@ -165,13 +224,13 @@ class GameAdminTest(TestCase):
         game.refresh_from_db()
 
         # try to make a similarity search for the document
-        results = game.vector_store.index.similarity_search("page 1")
+        results = game.vector_store.index.similarity_search("This is some text")
 
         self.assertEqual(len(results), 2)
         self.assertEqual(results[0].metadata["page"], 0)
         self.assertEqual(results[0].metadata["game_id"], game.id)
         self.assertEqual(results[0].metadata["document_id"], document.id)
-        self.assertTrue("Page\n1" in results[0].page_content)
+        self.assertTrue("Page 1" in results[0].page_content)
 
     def test_ingest_documents_twice(self):
         game = Game.objects.create(name="Test Game")
@@ -196,13 +255,13 @@ class GameAdminTest(TestCase):
         game.refresh_from_db()
 
         # try to make a similarity search for the document
-        results = game.vector_store.index.similarity_search("page 1")
+        results = game.vector_store.index.similarity_search("This is some text")
 
         self.assertEqual(len(results), 2)  # Still should only show 2 results
         self.assertEqual(results[0].metadata["page"], 0)
         self.assertEqual(results[0].metadata["game_id"], game.id)
         self.assertEqual(results[0].metadata["document_id"], document.id)
-        self.assertTrue("Page\n1" in results[0].page_content)
+        self.assertTrue("Page 1" in results[0].page_content)
 
 
 class GameModelTest(TestCase):
