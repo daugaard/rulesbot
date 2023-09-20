@@ -1,6 +1,7 @@
 import shutil
 from unittest import mock
 
+import langchain
 from django.contrib.admin.sites import AdminSite
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import RequestFactory, TestCase
@@ -142,7 +143,15 @@ class DocumentIngestionServiceTest(TestCase):
             _download_to_file_mock.side_effect = lambda _, file: shutil.copyfile(
                 "games/fixtures/test.pdf", file.name
             )
-            ingest_document(document)
+            # Mock OpenAI API for summarization
+            with mock.patch(
+                "games.loaders.pdf_loader_and_summarizer.ChatOpenAI"
+            ) as chat_opem_ai_mock:
+                llm = mock.Mock(spec=langchain.chat_models.ChatOpenAI)
+                llm.predict.return_value = "some summarized text"
+                chat_opem_ai_mock.return_value = llm
+
+                ingest_document(document)
 
         # try to make a similarity search for the document
         results = game.vector_store.index.similarity_search("Setup instructions")
