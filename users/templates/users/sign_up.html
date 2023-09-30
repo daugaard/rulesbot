@@ -1,0 +1,24 @@
+{% extends "master.html" %}
+
+{% block title %}Rulesbot.ai | Sign up{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h3>Sign up</h3>
+            </div>
+        </div>
+        <div class="row justify-space-between py-2">
+            <div class="col-12">
+                <form action="{% url 'users:sign-up' %}" method="post">
+                    {% csrf_token %}
+                    {{ form }}
+                    <input type="submit" value="Sign up" class="btn">
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

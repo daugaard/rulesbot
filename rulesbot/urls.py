@@ -29,6 +29,7 @@ urlpatterns = [
     path("terms/", pages_views.terms_view, name="terms"),
     path("games/", include("games.urls")),
     path("chat/", include("chat.urls")),
+    path("users/", include("users.urls")),
     path("admin/", admin.site.urls),
     path(
         "sitemap.xml",

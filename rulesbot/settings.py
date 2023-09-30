@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "chat.apps.ChatConfig",
     "games.apps.GamesConfig",
     "pages.apps.PagesConfig",
+    "users.apps.UsersConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -183,3 +184,7 @@ LOGGING = {
         },
     },
 }
+
+# Set login redirect
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
