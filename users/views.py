@@ -69,5 +69,5 @@ def login_view(request):
 def account_view(request):
     # check we're logged in
     if not request.user.is_authenticated:
-        return redirect(reverse("users:login"))
+        return redirect(reverse("users:login") + "?next=/users/account")
     return render(request, "users/account.html", {"user": request.user})
