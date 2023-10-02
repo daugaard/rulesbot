@@ -37,7 +37,6 @@ def sign_up_view(request):
 
 def login_view(request):
     next = request.GET.get("next")
-    print(next)
     form = LoginForm(initial={"next": next})
 
     if request.method == "POST":

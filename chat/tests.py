@@ -11,9 +11,11 @@ from chat.models import ChatSession
 from chat.retrievers.rules_bot_retriever import RulesBotRetriever
 from chat.services.question_answering_service import _get_chat_history, ask_question
 from games.models import Game
+from tests.decorators import prevent_request_warnings, prevent_warnings
 
 
 class CreateChatSessionViewTests(TestCase):
+    @prevent_request_warnings
     def test_no_game(self):
         """
         If no game exists, a 404 is returned.
@@ -155,6 +157,7 @@ class RulesBotRetrieverTests(TestCase):
             ),
         ]
 
+    @prevent_warnings
     def test_happy_path(self):
         # Initialze FAISS index
         index = FAISS.from_documents(
@@ -169,6 +172,7 @@ class RulesBotRetrieverTests(TestCase):
         self.assertEqual(len(docs), 3)
         self.assertEqual(docs[0].metadata["page"], 44)
 
+    @prevent_warnings
     def test_setup_question_special_case(self):
         # Initialze FAISS index
         index = FAISS.from_documents(
@@ -185,6 +189,7 @@ class RulesBotRetrieverTests(TestCase):
             [doc.metadata.get("setup_page") for doc in docs], [None, None, True]
         )
 
+    @prevent_warnings
     def test_setup_question_no_special_case(self):
         index = FAISS.from_documents(
             documents=self.documents_for_test_with_setup_page(),
@@ -205,6 +210,7 @@ class RulesBotRetrieverTests(TestCase):
             ],  # Can still include setup page even if it doesn't hit our special case
         )
 
+    @prevent_warnings
     def test_setup_question_special_case_no_setup_page(self):
         # Initialze FAISS index
         index = FAISS.from_documents(

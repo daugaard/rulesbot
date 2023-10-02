@@ -12,6 +12,7 @@ from games.admin import GameAdmin
 from games.models import Document, Game
 from games.services.document_ingestion_service import ingest_document
 from games.vectorstores import GameVectorStore
+from tests.decorators import prevent_request_warnings
 
 
 class GameIndexViewTests(TestCase):
@@ -58,6 +59,7 @@ class GameIndexViewTests(TestCase):
 
 
 class GameDetailViewTests(TestCase):
+    @prevent_request_warnings
     def test_no_game(self):
         """
         If no game exists, a 404 is returned.
