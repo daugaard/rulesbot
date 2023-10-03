@@ -77,6 +77,23 @@ class TestViews(TestCase):
             response, "form", "confirm_password", "Passwords do not match"
         )
 
+    def test_signup_user_cannot_access_admin(self):
+        self.client.post(
+            "/users/sign-up",
+            {
+                "username": "testuser",
+                "email": "test@email.com",
+                "password": "testpassword",
+                "confirm_password": "testpassword",
+            },
+        )
+        self.client.login(username="testuser", password="testpassword")
+        response = self.client.get("/admin/")
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, "/admin/login/?next=/admin/")
+        response = self.client.get("/users/account")
+        self.assertEqual(response.status_code, 200)
+
     def test_get_login_page(self):
         response = self.client.get("/users/login")
         self.assertEqual(response.status_code, 200)
