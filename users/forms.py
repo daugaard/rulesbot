@@ -46,3 +46,27 @@ class LoginForm(forms.Form):
         widget=forms.HiddenInput(),
         required=False,
     )
+
+
+class ChangePasswordForm(forms.Form):
+    current_password = forms.CharField(
+        max_length=100,
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control mb-3",
+                "placeholder": "Enter current password",
+            }
+        ),
+    )
+    new_password = forms.CharField(
+        max_length=100,
+        widget=forms.PasswordInput(
+            attrs={"class": "form-control mb-3", "placeholder": "Enter new password"}
+        ),
+    )
+    confirm_new_password = forms.CharField(
+        max_length=100,
+        widget=forms.PasswordInput(
+            attrs={"class": "form-control mb-3", "placeholder": "Confirm new password"}
+        ),
+    )

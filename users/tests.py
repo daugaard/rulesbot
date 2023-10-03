@@ -159,3 +159,66 @@ class TestViews(TestCase):
 
         response = self.client.get("/users/account")
         self.assertEqual(response.status_code, 302)
+
+    def test_get_change_password_page(self):
+        response = self.client.get("/users/change-password")
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, "/users/login?next=/users/change-password")
+
+    def test_get_change_password_page_after_login(self):
+        User.objects.create_user(username="testuser", email="test", password="test")
+        self.client.login(username="testuser", password="test")
+        response = self.client.get("/users/change-password")
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_change_password_page(self):
+        User.objects.create_user(username="testuser", email="test", password="test")
+        self.client.login(username="testuser", password="test")
+        response = self.client.post(
+            "/users/change-password",
+            {
+                "current_password": "test",
+                "new_password": "newpassword",
+                "confirm_new_password": "newpassword",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, "/users/account")
+
+        user = User.objects.get(username="testuser")
+        self.assertTrue(user.check_password("newpassword"))
+
+    def test_post_change_password_page_with_wrong_current_password(self):
+        User.objects.create_user(username="testuser", email="test", password="test")
+        self.client.login(username="testuser", password="test")
+        response = self.client.post(
+            "/users/change-password",
+            {
+                "current_password": "wrongpassword",
+                "new_password": "newpassword",
+                "confirm_new_password": "newpassword",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "users/change_password.html")
+        self.assertFormError(response, "form", "current_password", "Incorrect password")
+
+    def test_post_change_password_page_with_non_matching_passwords(self):
+        User.objects.create_user(username="testuser", email="test", password="test")
+        self.client.login(username="testuser", password="test")
+        response = self.client.post(
+            "/users/change-password",
+            {
+                "current_password": "test",
+                "new_password": "newpassword",
+                "confirm_new_password": "newpassword-wrong",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "users/change_password.html")
+        self.assertFormError(
+            response,
+            "form",
+            "confirm_new_password",
+            "Passwords do not match",
+        )

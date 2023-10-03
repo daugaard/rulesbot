@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from users.forms import LoginForm, SignupForm
+from users.forms import ChangePasswordForm, LoginForm, SignupForm
 
 
 def sign_up_view(request):
@@ -68,4 +68,37 @@ def account_view(request):
     # check we're logged in
     if not request.user.is_authenticated:
         return redirect(reverse("users:login") + "?next=/users/account")
+
     return render(request, "users/account.html", {"user": request.user})
+
+
+def change_password_view(request):
+    # check we're logged in
+    if not request.user.is_authenticated:
+        return redirect(reverse("users:login") + "?next=/users/change-password")
+
+    form = ChangePasswordForm()
+
+    if request.method == "POST":
+        form = ChangePasswordForm(request.POST)
+        if form.is_valid():
+            current_password = form.cleaned_data["current_password"]
+            new_password = form.cleaned_data["new_password"]
+            confirm_new_password = form.cleaned_data["confirm_new_password"]
+            if new_password == confirm_new_password:
+                user = authenticate(
+                    username=request.user.username, password=current_password
+                )
+                if user is not None:
+                    user.set_password(new_password)
+                    user.save()
+                    login(request, user)
+                    return redirect(reverse("users:account"))
+                else:
+                    form.add_error("current_password", "Incorrect password")
+            else:
+                form.add_error("confirm_new_password", "Passwords do not match")
+
+    return render(
+        request, "users/change_password.html", {"user": request.user, "form": form}
+    )
