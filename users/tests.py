@@ -61,8 +61,50 @@ class TestViews(TestCase):
         self.assertTemplateUsed(response, "users/sign_up.html")
         self.assertFormError(response, "form", "email", "Email already exists")
 
+    def test_post_signup_page_with_non_matching_password(self):
+        response = self.client.post(
+            "/users/sign-up",
+            {
+                "username": "testuser2",
+                "email": "test@email.com",
+                "password": "testpassword",
+                "confirm_password": "testpassword-wrong",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "users/sign_up.html")
+        self.assertFormError(
+            response, "form", "confirm_password", "Passwords do not match"
+        )
+
     def test_get_login_page(self):
         response = self.client.get("/users/login")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "users/login.html")
+
+    def test_login_correct_password(self):
+        User.objects.create_user(
+            username="testuser", email="test@email.com", password="test"
+        )
+        response = self.client.post(
+            "/users/login",
+            {"email": "test@email.com", "password": "test", "next": "/some-url"},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/some-url")
+
+    def test_login_wrong_password(self):
+        User.objects.create_user(
+            username="testuser", email="test@email.com", password="test"
+        )
+        response = self.client.post(
+            "/users/login",
+            {
+                "email": "test@email.com",
+                "password": "other-password",
+                "next": "/some-url",
+            },
+        )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "users/login.html")
 
@@ -71,7 +113,32 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, "/users/login?next=/users/account")
 
+    def test_get_account_page_after_login(self):
+        User.objects.create_user(
+            username="testuser", email="test@email.com", password="test"
+        )
+        response = self.client.post(
+            "/users/login",
+            {"email": "test@email.com", "password": "test", "next": "/users/account"},
+        )
+        self.assertEqual(response.status_code, 302)
+        response = self.client.get("/users/account")
+        self.assertEqual(response.status_code, 200)
+
     def test_get_logout_page(self):
         response = self.client.get("/users/logout")
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, "/")
+
+    def test_get_logout_page_after_login(self):
+        User.objects.create_user(username="testuser", email="test", password="test")
+        self.client.login(username="testuser", password="test")
+        response = self.client.get("/users/account")
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get("/users/logout")
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, "/")
+
+        response = self.client.get("/users/account")
+        self.assertEqual(response.status_code, 302)

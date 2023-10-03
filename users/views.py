@@ -52,9 +52,8 @@ def login_view(request):
             # Then we login the user using the username
             username = User.objects.get(email=email).username
             user = authenticate(username=username, password=password)
-            login(request, user)
-
             if user is not None:
+                login(request, user)
                 if next:
                     return redirect(next)
                 else:
