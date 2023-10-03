@@ -5,25 +5,25 @@ class SignupForm(forms.Form):
     username = forms.CharField(
         max_length=100,
         widget=forms.TextInput(
-            attrs={"class": "form-control", "placeholder": "Enter username"}
+            attrs={"class": "form-control mb-3", "placeholder": "Enter username"}
         ),
     )
     email = forms.EmailField(
         max_length=100,
         widget=forms.EmailInput(
-            attrs={"class": "form-control", "placeholder": "Enter email"}
+            attrs={"class": "form-control mb-3", "placeholder": "Enter email"}
         ),
     )
     password = forms.CharField(
         max_length=100,
         widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "Enter password"}
+            attrs={"class": "form-control mb-3", "placeholder": "Enter password"}
         ),
     )
     confirm_password = forms.CharField(
         max_length=100,
         widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "Confirm password"}
+            attrs={"class": "form-control mb-3", "placeholder": "Confirm password"}
         ),
     )
 
