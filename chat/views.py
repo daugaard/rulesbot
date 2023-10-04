@@ -41,6 +41,10 @@ class SessionIndexView(LoginRequiredMixin, generic.ListView):
 def view_chat_session(request, session_slug):
     chat_session = get_object_or_404(ChatSession, session_slug=session_slug)
 
+    # check if we have permissions to view this session
+    if chat_session.user is not None and not request.user == chat_session.user:
+        return redirect(reverse("chat:index"))
+
     if request.method == "POST":
         # Process answer
         form = ChatForm(request.POST)

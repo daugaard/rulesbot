@@ -19,7 +19,8 @@
                         <a class="list-group-item list-group-item-action {% if session.session_slug == chat_session.session_slug %}active{% endif %}" href="{% url 'chat:view_chat_session' session.session_slug %}">
                             <i class="fa fa-comments"></i>
                             {{ session.game.name }}
-                            <p class="text-xs">{{ session.message_set.last.updated_at }}</p>
+                            <br/>
+                            <span class="text-xs">{{ session.message_set.last.updated_at }}</span>
                         </a>
                         {% endfor %}
                         <a class="list-group-item list-group-item-action text-secondary" href="{% url 'chat:sessions' %}">
@@ -108,7 +109,7 @@
                                 </div>
                                 <div class="col-lg-2">
                                     <button class="btn bg-gradient-primary mt-2 w-100" id="chat-form-button">
-                                        <i class="fa fa-send"></i> Ask RulesBot.ai
+                                        <i class="fa fa-send"></i> Ask
                                     </button>
                                     {% if not user.is_authenticated %}
                                        <a href="{% url 'users:sign-up' %}" class="btn bg-gradient-success d-lg-none d-md-block d-sm-block">Sign up to save your chat sessions</a>
