@@ -12,7 +12,34 @@
 <section>
     <div class="container py-4">
         <div class="row">
-            <div class="col-lg-12">
+            <div class="col-lg-2">
+                {% if user.is_authenticated %}
+                    <ul class="list-group mb-4 d-lg-block d-none">
+                        {% for session in sessions %}
+                        <a class="list-group-item list-group-item-action {% if session.session_slug == chat_session.session_slug %}active{% endif %}" href="{% url 'chat:view_chat_session' session.session_slug %}">
+                            <i class="fa fa-comments"></i>
+                            {{ session.game.name }}
+                            <p class="text-xs">{{ session.message_set.last.updated_at }}</p>
+                        </a>
+                        {% endfor %}
+                        <a class="list-group-item list-group-item-action text-secondary" href="{% url 'chat:sessions' %}">
+                            View all
+                        </a>
+                        <a class="list-group-item list-group-item-action" href="{% url 'chat:index' %}" class="">
+                            <i class="fa fa-plus"></i>
+                            New chat
+                        </a>
+                    </ul>
+                    {% else %}
+                        <ul class="list-group mb-4 d-lg-block d-none">
+                            <li class="list-group-item">
+                                Create an account to save your chat sessions!
+                            </li>
+                            <a href="{% url 'users:sign-up'%}" class="list-group-item list-group-item-action active">Sign up!</a>
+                        </ul>
+                    {% endif %}
+            </div>
+            <div class="col-lg-10">
                 <div class="card blur shadow-blur" style="height:85vh !important">
                     <div class="card-header shadow-lg">
                         <div class="row">
@@ -73,16 +100,19 @@
                         <form id="chat-form" action="{% url 'chat:view_chat_session' chat_session.session_slug %}" class="align-items-center" method="post">
                             <div class="row">
                                 {% csrf_token %}
-                                <div class="col-md-10">
+                                <div class="col-lg-10">
                                     <div class="input-group mt-2">
                                         <input type="text" name="question" class="form-control" placeholder="Ask your question here" maxlength="1000" required="" id="id_question" onfocus="focused(this)" onfocusout="defocused(this)">
                                     </div>
 
                                 </div>
-                                <div class="col-md-2">
-                                    <button class="btn bg-gradient-primary mt-2" id="chat-form-button">
+                                <div class="col-lg-2">
+                                    <button class="btn bg-gradient-primary mt-2 w-100" id="chat-form-button">
                                         <i class="fa fa-send"></i> Ask RulesBot.ai
                                     </button>
+                                    {% if not user.is_authenticated %}
+                                       <a href="{% url 'users:sign-up' %}" class="btn bg-gradient-success d-lg-none d-md-block d-sm-block">Sign up to save your chat sessions</a>
+                                    {% endif %}
                                 </div>
                             </div>
                         </form>

@@ -48,10 +48,21 @@ def view_chat_session(request, session_slug):
             question = form.cleaned_data["question"]
             question_answering_service.ask_question(question, chat_session)
 
+    sessions = []
+    if request.user.is_authenticated:
+        sessions = ChatSession.objects.filter(user=request.user)
+        sessions = sorted(
+            sessions,
+            key=lambda x: x.message_set.last().created_at
+            if x.message_set.last()
+            else x.updated_at,
+            reverse=True,
+        )
+
     return render(
         request,
         "chat/chat.html",
-        {"chat_session": chat_session, "form": ChatForm()},
+        {"chat_session": chat_session, "form": ChatForm(), "sessions": sessions[:7]},
     )
 
 
