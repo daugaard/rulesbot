@@ -1,5 +1,6 @@
 import uuid
 
+from django.contrib.auth.models import User
 from django.db import models
 
 from games.models import Document, Game
@@ -10,6 +11,14 @@ class ChatSession(models.Model):
     game = models.ForeignKey(
         Game, on_delete=models.DO_NOTHING
     )  # Do not delete the session if the game is deleted
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        default=None,
+        related_name="chat_sessions",
+    )  # If the user is deleted, keep the session but remove the user
 
     ip_address = models.GenericIPAddressField(null=True, default=None)
 

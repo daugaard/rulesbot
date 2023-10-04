@@ -18,11 +18,12 @@ class ChatSessionAdmin(admin.ModelAdmin):
         "id",
         "game_name",
         "number_of_messages",
+        "user",
         "ip_address",
         "created_at",
         "updated_at",
     )
-    list_filter = ["created_at", "updated_at", "ip_address"]
+    list_filter = ["created_at", "updated_at", "user", "ip_address"]
     search_fields = ["ip_address"]
 
     def game_name(self, obj):

@@ -69,7 +69,20 @@ def account_view(request):
     if not request.user.is_authenticated:
         return redirect(reverse("users:login") + "?next=/users/account")
 
-    return render(request, "users/account.html", {"user": request.user})
+    chat_session_count = request.user.chat_sessions.count()
+    messages_count = 0
+    for chat_session in request.user.chat_sessions.all():
+        messages_count += chat_session.message_set.count()
+
+    return render(
+        request,
+        "users/account.html",
+        {
+            "user": request.user,
+            "messages_count": messages_count,
+            "chat_session_count": chat_session_count,
+        },
+    )
 
 
 def change_password_view(request):
