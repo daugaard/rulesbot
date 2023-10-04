@@ -1,5 +1,6 @@
 from unittest import mock
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from langchain.document_loaders.base import Document
@@ -24,14 +25,22 @@ class CreateChatSessionViewTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_one_game(self):
-        """
-        If one game exists, it is displayed.
-        """
         game = Game.objects.create(name="Test Game")
         response = self.client.get(reverse("chat:create_chat_session", args=(game.id,)))
         self.assertEqual(response.status_code, 302)
         chat_session = game.chatsession_set.first()
         self.assertEqual(response.url, f"/chat/{chat_session.session_slug}")
+        self.assertIsNone(chat_session.user)  # No user associated with session
+
+    def test_user_logged_in(self):
+        user = User.objects.create_user(username="testuser", password="12345")
+        self.client.login(username="testuser", password="12345")
+        game = Game.objects.create(name="Test Game")
+        response = self.client.get(reverse("chat:create_chat_session", args=(game.id,)))
+        self.assertEqual(response.status_code, 302)
+        chat_session = game.chatsession_set.first()
+        self.assertEqual(response.url, f"/chat/{chat_session.session_slug}")
+        self.assertEqual(chat_session.user, user)  # User associated with session
 
 
 class QuestionAnsweringServiceTests(TestCase):

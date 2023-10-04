@@ -62,7 +62,12 @@ def create_chat_session(request, game_id):
     if not ip_address:
         ip_address = request.META.get("REMOTE_ADDR", "")
 
-    chat_session = ChatSession.objects.create(game=game, ip_address=ip_address)
+    if request.user.is_authenticated:
+        chat_session = ChatSession.objects.create(
+            game=game, user=request.user, ip_address=ip_address
+        )
+    else:
+        chat_session = ChatSession.objects.create(game=game, ip_address=ip_address)
 
     return redirect(
         reverse("chat:view_chat_session", args=(chat_session.session_slug,))
