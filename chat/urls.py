@@ -10,4 +10,9 @@ urlpatterns = [
         "create/<int:game_id>/", views.create_chat_session, name="create_chat_session"
     ),
     path("<str:session_slug>", views.view_chat_session, name="view_chat_session"),
+    path(
+        "<str:session_slug>/ask_question",
+        views.ask_question_streaming,
+        name="ask_question_streaming",
+    ),
 ]

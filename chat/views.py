@@ -1,11 +1,19 @@
+from queue import SimpleQueue
+from threading import Thread
+from time import sleep
+
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import generic
 
 from chat.forms import ChatForm
 from chat.models import ChatSession
-from chat.services import question_answering_service
+from chat.services import (
+    question_answering_service,
+    streaming_question_answering_service,
+)
 from games.models import Game
 
 
@@ -87,3 +95,40 @@ def create_chat_session(request, game_id):
     return redirect(
         reverse("chat:view_chat_session", args=(chat_session.session_slug,))
     )
+
+
+def ask_question_streaming(request, session_slug):
+    """
+    Ask a question using the async_ask_question function and return the raw response
+    as a streaming response.
+    """
+    chat_session = get_object_or_404(ChatSession, session_slug=session_slug)
+
+    # check if we have permissions to view this session
+    if chat_session.user is not None and not request.user == chat_session.user:
+        return redirect(reverse("chat:index"))
+
+    question = request.GET.get("question", "")
+
+    response_queue = SimpleQueue()
+
+    def stream_from_queue():
+        yield "Loading .. "
+        while True:
+            result = response_queue.get()
+            if result is None:
+                sleep(0.1)
+                continue
+            if result is streaming_question_answering_service.job_done:
+                print("all done...")
+                break
+            yield result
+
+    # run the async ask question function in a thread
+    qa_thread = Thread(
+        target=streaming_question_answering_service.ask_question,
+        args=(question, chat_session, response_queue),
+    )
+    qa_thread.start()
+
+    return StreamingHttpResponse(stream_from_queue())
