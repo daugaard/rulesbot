@@ -140,6 +140,7 @@
             <div class="card bg-gray-200 text-dark">
                 <div class="card-body py-2 px-3">
                     <p class="mb-1" id="message-content">
+                        <div class="spinner-grow spinner-grow-sm loading"></div>
                     </p>
                 </div>
             </div>
@@ -190,6 +191,11 @@
         xhr.setRequestHeader("X-Chat-Question", question);
         xhr.onreadystatechange = function() {
             if (xhr.readyState == 3 ) {
+                // Remove the loader message
+                loading = loaderMessage.getElementsByClassName("loading");
+                if (loading.length > 0) {
+                    loading[0].remove();
+                }
                 new_text = xhr.responseText
                 // Replace \n with <br/>
                 new_text = new_text.replace(/\n/g, "<br/>");
