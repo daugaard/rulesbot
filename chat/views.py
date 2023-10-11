@@ -108,19 +108,18 @@ def ask_question_streaming(request, session_slug):
     if chat_session.user is not None and not request.user == chat_session.user:
         return redirect(reverse("chat:index"))
 
-    question = request.GET.get("question", "")
+    # Question is in X-Chat-Question header
+    question = request.META.get("HTTP_X_CHAT_QUESTION", "")
 
     response_queue = SimpleQueue()
 
     def stream_from_queue():
-        yield "Loading .. "
         while True:
             result = response_queue.get()
             if result is None:
                 sleep(0.1)
                 continue
             if result is streaming_question_answering_service.job_done:
-                print("all done...")
                 break
             yield result
 
