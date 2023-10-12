@@ -1,6 +1,5 @@
 from queue import SimpleQueue
 from threading import Thread
-from time import sleep
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import StreamingHttpResponse
@@ -10,10 +9,7 @@ from django.views import generic
 
 from chat.forms import ChatForm
 from chat.models import ChatSession
-from chat.services import (
-    question_answering_service,
-    streaming_question_answering_service,
-)
+from chat.services import streaming_question_answering_service
 from games.models import Game
 
 
@@ -53,13 +49,7 @@ def view_chat_session(request, session_slug):
     if chat_session.user is not None and not request.user == chat_session.user:
         return redirect(reverse("chat:index"))
 
-    if request.method == "POST":
-        # Process answer
-        form = ChatForm(request.POST)
-        if form.is_valid():
-            question = form.cleaned_data["question"]
-            question_answering_service.ask_question(question, chat_session)
-
+    # Load the last 7 chat sessions for the user
     sessions = []
     if request.user.is_authenticated:
         sessions = ChatSession.objects.filter(user=request.user)
@@ -116,10 +106,10 @@ def ask_question_streaming(request, session_slug):
     def stream_from_queue():
         while True:
             result = response_queue.get()
-            if result is None:
-                sleep(0.1)
-                continue
-            if result is streaming_question_answering_service.job_done:
+            if (
+                result is streaming_question_answering_service.QueueSignals.job_done
+                or result is streaming_question_answering_service.QueueSignals.error
+            ):
                 break
             yield result
 

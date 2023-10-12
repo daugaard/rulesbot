@@ -13,11 +13,13 @@
 #   game = Game.objects.get(name="Forgotten Waters")
 #   run_query(game, "What is the power of a 2/2 creature?")
 
+from multiprocessing import SimpleQueue
+
 from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from chat.models import ChatSession
-from chat.services import question_answering_service
+from chat.services import streaming_question_answering_service
 from games.models import Game
 from games.services.document_ingestion_service import ingest_document
 
@@ -52,8 +54,11 @@ def run_query(game=Game, query=str):
     """
     chat_session = ChatSession.objects.create(game=game, ip_address="0.0.0.0")
 
-    result = question_answering_service._query_conversational_retrieval_chain(
-        query, chat_session
+    response_queue = (
+        SimpleQueue()
+    )  # Setup a queue to receive responses, but ignore it we since we inspect the results directly
+    result = streaming_question_answering_service._query_conversational_retrieval_chain(
+        query, chat_session, response_queue
     )
 
     print("Question: " + query)

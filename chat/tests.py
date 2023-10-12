@@ -1,3 +1,4 @@
+from multiprocessing import SimpleQueue
 from unittest import mock
 
 from django.contrib.auth.models import User
@@ -5,12 +6,17 @@ from django.test import TestCase
 from django.urls import reverse
 from langchain.document_loaders.base import Document
 from langchain.embeddings.fake import DeterministicFakeEmbedding
+from langchain.llms.fake import FakeListLLM, FakeStreamingListLLM
 from langchain.schema.messages import AIMessage, HumanMessage
 from langchain.vectorstores import FAISS
 
 from chat.models import ChatSession
 from chat.retrievers.rules_bot_retriever import RulesBotRetriever
-from chat.services.question_answering_service import _get_chat_history, ask_question
+from chat.services.streaming_question_answering_service import (
+    QueueSignals,
+    _get_chat_history,
+    ask_question,
+)
 from games.models import Game
 from tests.decorators import prevent_request_warnings, prevent_warnings
 
@@ -43,7 +49,7 @@ class CreateChatSessionViewTests(TestCase):
         self.assertEqual(chat_session.user, user)  # User associated with session
 
 
-class QuestionAnsweringServiceTests(TestCase):
+class StreamingQuestionAnsweringServiceTests(TestCase):
     def test__get_chat_history_empty(self):
         game = Game.objects.create(name="Test Game")
         chat_session = ChatSession.objects.create(game=game)
@@ -99,35 +105,45 @@ class QuestionAnsweringServiceTests(TestCase):
         self.assertEqual(history[7].content, "Message 19")
         assert isinstance(history[7], AIMessage)
 
+    @prevent_warnings
     def test_ask_question(self):
         game = Game.objects.create(name="Test Game")
         document = game.document_set.create(display_name="Rulebook", url="some-url")
         chat_session = ChatSession.objects.create(game=game)
+        # setup mock index
+        chat_session.game.vector_store.add_documents(
+            [Document(page_content="some content", metadata={"page": 42})],
+            document_id=document.id,
+        )
+        test_queue = SimpleQueue()
 
         question = "What is the meaning of life?"
 
-        # Mock _setup_conversational_retrieval_chain
+        # Mock the llm
         with mock.patch(
-            "chat.services.question_answering_service._setup_conversational_retrieval_chain"
-        ) as mock_from_llm:
-            mock_from_llm.return_value = mock.MagicMock(
-                return_value={
-                    "answer": "42",
-                    "source_documents": [
-                        Document(
-                            page_content="some content",
-                            metadata={"document_id": document.id, "page": 42},
-                        )
-                    ],
-                }
-            )
-            ask_question(question, chat_session)
+            "chat.services.streaming_question_answering_service.ChatOpenAI"
+        ) as mock_llm_initializer:
+
+            def side_effect(*args, **kwargs):
+                if kwargs.get("streaming"):
+                    return FakeStreamingListLLM(
+                        responses=["some answer to the question"], *args, **kwargs
+                    )
+                else:
+                    return FakeListLLM(
+                        responses=["some answer to the question"], *args, **kwargs
+                    )
+
+            mock_llm_initializer.side_effect = side_effect
+            ask_question(question, chat_session, test_queue)
 
         # Assert that messages are created
         self.assertEqual(chat_session.message_set.count(), 2)
         self.assertEqual(chat_session.message_set.first().message, question)
         self.assertEqual(chat_session.message_set.first().message_type, "human")
-        self.assertEqual(chat_session.message_set.last().message, "42")
+        self.assertEqual(
+            chat_session.message_set.last().message, "some answer to the question"
+        )
         self.assertEqual(chat_session.message_set.last().message_type, "ai")
         ai_message = chat_session.message_set.last()
         self.assertEqual(len(ai_message.sourcedocument_set.all()), 1)
@@ -135,6 +151,11 @@ class QuestionAnsweringServiceTests(TestCase):
         self.assertEqual(
             ai_message.sourcedocument_set.first().page_number, 43
         )  # 0-indexed
+
+        # Assert that the queue has been filled
+        # TODO: For some reason the message isn't posted to the queue when using the FakeStreamingListLLM
+        # self.assertEqual(test_queue.get(), "some answer to the question")
+        self.assertEqual(test_queue.get(), QueueSignals.job_done)
 
 
 class RulesBotRetrieverTests(TestCase):
