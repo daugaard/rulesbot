@@ -69,7 +69,6 @@
                                 </div>
                             </div>
                         </div>
-                    <!-- first AI message -->
                         {% for message in chat_session.message_set.all %}
                             {% if message.message_type != 'system' %}
                             <div class="row {%if message.message_type == 'ai' %}justify-content-start{%else%}justify-content-end{%endif%} mt-4">
@@ -98,7 +97,7 @@
                         {% endfor %}
                     </div>
                     <div class="card-footer d-block">
-                        <form id="chat-form" action="{% url 'chat:view_chat_session' chat_session.session_slug %}" class="align-items-center" method="post">
+                        <form id="chat-form" class="align-items-center" method="post">
                             <div class="row">
                                 {% csrf_token %}
                                 <div class="col-lg-10">
@@ -135,13 +134,13 @@
             </div>
         </div>
     </div>
-    <div class="row justify-content-start mt-4" style="visibility: hidden;" id="chat-message-loader">
+    <div class="row justify-content-start mt-4" style="visibility: hidden;" id="chat-message-answer-prototype">
         <div class="col-auto">
             <div class="card bg-gray-200 text-dark">
                 <div class="card-body py-2 px-3">
-                    <div class="spinner-grow spinner-grow-sm" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
+                    <p class="mb-1" id="message-content">
+                        <div class="spinner-grow spinner-grow-sm loading"></div>
+                    </p>
                 </div>
             </div>
         </div>
@@ -151,10 +150,47 @@
     // onload scroll to bottom
     window.onload = function() {
         var objDiv = document.getElementsByClassName("overflow-auto")[0];
-        objDiv.scrollTop = objDiv.scrollHeight;
+        objDiv.scrollTop = objDiv.scrollHeight + 100;
     }
 
-    // when submitting the form, add a new message to the chat session and submit the form
+
+    function setupAndPerformQuestionRequest(question, answerElement) {
+        // Make the request
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "{% url 'chat:ask_question_streaming' chat_session.session_slug %}", true);
+        xhr.setRequestHeader("Content-Type", "plain/text");
+        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.setRequestHeader("Accept", "plain/text");
+        xhr.setRequestHeader("Cache-Control", "no-cache");
+        xhr.setRequestHeader("X-Chat-Question", question);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 3 && xhr.status == 200 ) {
+                // Remove the loading spinner if it exists
+                loadingSpinner = answerElement.getElementsByClassName("loading");
+                if (loadingSpinner.length > 0) {
+                    loadingSpinner[0].remove();
+                }
+                // Get the response
+                new_text = xhr.responseText
+                // Replace \n with <br/>
+                new_text = new_text.replace(/\n/g, "<br/>");
+                // Append the response to the loader message
+                answerElement.getElementsByClassName("mb-1")[0].innerHTML = new_text;
+                // Scroll to bottom
+                var objDiv = document.getElementsByClassName("overflow-auto")[0];
+                objDiv.scrollTop = objDiv.scrollHeight;
+            }
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                // Reload the page
+                location.reload();
+            }
+        }
+        xhr.send();
+    }
+
+    // when submitting the form, add a new message to the chat session, make request and add streaming response to chat session
+    // when response is received, reload the page
     document.getElementById("chat-form").onsubmit = function() {
         var question = document.getElementById("id_question").value;
         // Clone chat-message-prototype and set the question
@@ -168,17 +204,24 @@
         chatWindow.appendChild(newMessage);
 
         // Clone chat-message-loader and append to chat-window
-        var loaderMessage = document.getElementById("chat-message-loader");
-        loaderMessage.style.visibility = "visible";
-        chatWindow.appendChild(loaderMessage);
+        var answerElement = document.getElementById("chat-message-answer-prototype");
+        answerElement.style.visibility = "visible";
+        chatWindow.appendChild(answerElement);
 
         // Scroll to bottom
         var objDiv = document.getElementsByClassName("overflow-auto")[0];
-        objDiv.scrollTop = objDiv.scrollHeight;
+        objDiv.scrollTop = objDiv.scrollHeight + 100;
 
         // Disable the button and text field
         document.getElementById("chat-form-button").disabled = true;
-        return true;
+
+        // Clear the text field
+        document.getElementById("id_question").value = "";
+
+        // Make the request
+        setupAndPerformQuestionRequest(question, answerElement);
+
+        return false; // Do not submit the form
     };
 
 

@@ -1,4 +1,7 @@
+from enum import Enum, auto
+
 from langchain import PromptTemplate
+from langchain.callbacks.base import BaseCallbackHandler
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.schema.messages import AIMessage, HumanMessage
@@ -20,7 +23,8 @@ Ignore any variant or optional rules unless specifically instructed not to.
 
 **Answer:**"""
 
-condense_question_template = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language. If the follow up question is a statement and not a question pass it through.
+condense_question_template = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
+If the follow up question is not a question do not rephrase it.
 
 **Conversation**:
 {chat_history}
@@ -29,13 +33,37 @@ condense_question_template = """Given the following conversation and a follow up
 """
 
 
-def ask_question(question, chat_session):
+class QueueSignals(Enum):
+    job_done = auto()
+    error = auto()
+
+
+class QueueCallbackHandler(BaseCallbackHandler):
+    def __init__(self, queue):
+        self.queue = queue
+
+    def on_llm_new_token(self, token, **kwargs) -> None:
+        """Run on new LLM token. Only available when streaming is enabled."""
+        self.queue.put(token)
+
+    def on_llm_end(self, response, **kwargs) -> None:
+        """Run when LLM ends running."""
+        self.queue.put(QueueSignals.job_done)
+
+    def on_llm_error(self, error, **kwargs) -> None:
+        """Run when LLM errors."""
+        self.queue.put(QueueSignals.error)
+
+
+def ask_question(question, chat_session, response_queue):
     """
     Ask a question in the chat session and add response to the chat session.
     """
-    result = _query_conversational_retrieval_chain(question, chat_session)
-
     chat_session.message_set.create(message=question, message_type="human")
+
+    result = _query_conversational_retrieval_chain(
+        question, chat_session, response_queue
+    )
 
     answer = result["answer"]
     ai_message = chat_session.message_set.create(message=answer, message_type="ai")
@@ -45,15 +73,17 @@ def ask_question(question, chat_session):
             page_number=source_document.metadata["page"] + 1,  # 0-indexed
         )
 
+    return response_queue
 
-def _query_conversational_retrieval_chain(question, chat_session):
-    qa_chain = _setup_conversational_retrieval_chain(chat_session)
+
+def _query_conversational_retrieval_chain(question, chat_session, response_queue):
+    qa_chain = _setup_conversational_retrieval_chain(chat_session, response_queue)
     return qa_chain(
         {"question": question, "chat_history": _get_chat_history(chat_session)}
     )
 
 
-def _setup_conversational_retrieval_chain(chat_session):
+def _setup_conversational_retrieval_chain(chat_session, response_queue):
     personalized_prompt_template = prompt_template.replace(
         "%%GAME%%", chat_session.game.name
     )
@@ -65,8 +95,10 @@ def _setup_conversational_retrieval_chain(chat_session):
         input_variables=["chat_history", "question"],
     )
 
+    callback_handler = QueueCallbackHandler(response_queue)
+
     return ConversationalRetrievalChain.from_llm(
-        llm=ChatOpenAI(),
+        llm=ChatOpenAI(streaming=True, callbacks=[callback_handler]),
         condense_question_llm=ChatOpenAI(temperature=0.1),
         condense_question_prompt=condense_question_prompt,
         retriever=RulesBotRetriever(

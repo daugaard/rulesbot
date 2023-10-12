@@ -1,11 +1,15 @@
+from queue import SimpleQueue
+from threading import Thread
+
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import generic
 
 from chat.forms import ChatForm
 from chat.models import ChatSession
-from chat.services import question_answering_service
+from chat.services import streaming_question_answering_service
 from games.models import Game
 
 
@@ -45,13 +49,7 @@ def view_chat_session(request, session_slug):
     if chat_session.user is not None and not request.user == chat_session.user:
         return redirect(reverse("chat:index"))
 
-    if request.method == "POST":
-        # Process answer
-        form = ChatForm(request.POST)
-        if form.is_valid():
-            question = form.cleaned_data["question"]
-            question_answering_service.ask_question(question, chat_session)
-
+    # Load the last 7 chat sessions for the user
     sessions = []
     if request.user.is_authenticated:
         sessions = ChatSession.objects.filter(user=request.user)
@@ -87,3 +85,39 @@ def create_chat_session(request, game_id):
     return redirect(
         reverse("chat:view_chat_session", args=(chat_session.session_slug,))
     )
+
+
+def ask_question_streaming(request, session_slug):
+    """
+    Ask a question using the async_ask_question function and return the raw response
+    as a streaming response.
+    """
+    chat_session = get_object_or_404(ChatSession, session_slug=session_slug)
+
+    # check if we have permissions to view this session
+    if chat_session.user is not None and not request.user == chat_session.user:
+        return redirect(reverse("chat:index"))
+
+    # Question is in X-Chat-Question header
+    question = request.META.get("HTTP_X_CHAT_QUESTION", "")
+
+    response_queue = SimpleQueue()
+
+    def stream_from_queue():
+        while True:
+            result = response_queue.get()
+            if (
+                result is streaming_question_answering_service.QueueSignals.job_done
+                or result is streaming_question_answering_service.QueueSignals.error
+            ):
+                break
+            yield result
+
+    # run the async ask question function in a thread
+    qa_thread = Thread(
+        target=streaming_question_answering_service.ask_question,
+        args=(question, chat_session, response_queue),
+    )
+    qa_thread.start()
+
+    return StreamingHttpResponse(stream_from_queue())

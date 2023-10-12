@@ -36,6 +36,7 @@ Test data is specified in the fixtures/evaluate_rulesbot/*.json files. One file 
 import json
 import os
 import sys
+from multiprocessing import SimpleQueue
 from pathlib import Path
 
 import django
@@ -47,7 +48,7 @@ django.setup()
 from colorama import Fore, Style  # noqa: E402
 
 from chat.models import ChatSession  # noqa: E402
-from chat.services import question_answering_service  # noqa: E402
+from chat.services import streaming_question_answering_service  # noqa: E402
 from games.models import Game  # noqa: E402
 from games.services import document_ingestion_service  # noqa: E402
 
@@ -109,7 +110,10 @@ def evaluate_question(
     print(Fore.BLUE + f"Description: {description}" + Style.RESET_ALL)
     print(Fore.MAGENTA + f"Question: {question}" + Style.RESET_ALL)
 
-    question_answering_service.ask_question(question, session)
+    queue = (
+        SimpleQueue()
+    )  # Ignore the queue and just return the result by reading the message set
+    streaming_question_answering_service.ask_question(question, session, queue)
 
     bot_answer = session.message_set.filter(message_type="ai").last().message
 
