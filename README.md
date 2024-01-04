@@ -32,3 +32,15 @@ python manage.py shell
 coverage run --source='.' manage.py test
 coverage report
 ```
+
+## Deploy
+
+First build:
+```
+docker build . -t rulesbot -t registry.practicalai.io/rulesbot && docker push registry.practicalai.io/rulesbot
+```
+
+Then login to server and reload rulesbot container:
+```
+./scripts/run-rulesbot-container.sh
+```
