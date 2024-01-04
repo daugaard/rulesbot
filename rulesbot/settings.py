@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 
 import environ
+from django.core.management.utils import get_random_secret_key
 
 env = environ.Env(
     # set casting, default value
@@ -29,7 +30,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env("DJANGO_SECRET_KEY")
+# We default to a random key to allow us to collect static files during CI
+SECRET_KEY = env("DJANGO_SECRET_KEY", default=get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
@@ -46,7 +48,14 @@ IS_HEROKU_APP = "DYNO" in os.environ and "CI" not in os.environ
 if IS_HEROKU_APP:
     ALLOWED_HOSTS = ["*"]
 else:
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = ["new.rulesbot.ai", "www.rulesbot.ai", "rulesbot.ai"]
+
+# Set the domain for the CSRF cookie
+CSRF_TRUSTED_ORIGINS = [
+    "https://new.rulesbot.ai",
+    "https://www.rulesbot.ai",
+    "https://rulesbot.ai",
+]
 
 # Application definition
 

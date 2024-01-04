@@ -1,2 +1,1 @@
-release: python manage.py migrate
-web: gunicorn rulesbot.wsgi
+web: gunicorn --timeout 0 --workers 6 rulesbot.wsgi
