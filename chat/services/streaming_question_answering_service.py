@@ -7,6 +7,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.schema.messages import AIMessage, HumanMessage
 
 from chat.retrievers.rules_bot_retriever import RulesBotRetriever
+from rulesbot.settings import DEFAULT_CHATGPT_MODEL
 
 prompt_template = """Please use the following information to provide a clear and accurate answer to this question regarding the rules of the game %%GAME%%.
 Explain your answer in detail using the rulebook information provided.
@@ -98,8 +99,10 @@ def _setup_conversational_retrieval_chain(chat_session, response_queue):
     callback_handler = QueueCallbackHandler(response_queue)
 
     return ConversationalRetrievalChain.from_llm(
-        llm=ChatOpenAI(streaming=True, callbacks=[callback_handler]),
-        condense_question_llm=ChatOpenAI(temperature=0.1),
+        llm=ChatOpenAI(
+            streaming=True, callbacks=[callback_handler], model=DEFAULT_CHATGPT_MODEL
+        ),
+        condense_question_llm=ChatOpenAI(temperature=0.1, model=DEFAULT_CHATGPT_MODEL),
         condense_question_prompt=condense_question_prompt,
         retriever=RulesBotRetriever(
             index=chat_session.game.vector_store.index, search_kwargs={"k": 3}

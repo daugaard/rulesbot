@@ -3,6 +3,8 @@ from langchain.document_loaders import PyMuPDFLoader
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
+from rulesbot.settings import DEFAULT_CHATGPT_MODEL
+
 
 def load_and_split(filename, document):
     """
@@ -73,7 +75,7 @@ def _summarize_setup_instructions(setup_page_content):
     """
     Use ChatGPT to summarize the setup instructions.
     """
-    llm = ChatOpenAI(temperature=0.1)
+    llm = ChatOpenAI(temperature=0.1, model=DEFAULT_CHATGPT_MODEL)
     prompt = f"Provided are setup instructions for a board game. Please clean them up and summarize them into an easy-to-read format. \n\n{setup_page_content}\n\nSummary:"
     return llm.predict(prompt)
 
@@ -83,7 +85,7 @@ def _clean_up_page(page_content):
     Use ChatGPT to clean up the content.
     """
     print("Cleaning up page ... ")
-    llm = ChatOpenAI(temperature=0.1)
+    llm = ChatOpenAI(temperature=0.1, model=DEFAULT_CHATGPT_MODEL)
     prompt = f"Please clean up the following page of rules to make it easier to read. \n\n{page_content}\n\nCleaned up rules:"
     print(f"Input: {page_content}")
     cleaned_up_page_content = llm.predict(prompt)

@@ -197,3 +197,9 @@ LOGGING = {
 # Set login redirect
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
+
+
+# CUSTOM APP SETTINGS
+
+# ChatGPT settings
+DEFAULT_CHATGPT_MODEL = "gpt-4o-mini"
