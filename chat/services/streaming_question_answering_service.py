@@ -11,7 +11,6 @@ from rulesbot.settings import DEFAULT_CHATGPT_MODEL
 
 prompt_template = """Please use the following information to provide a clear and accurate answer to this question regarding the rules of the game %%GAME%%.
 Explain your answer in detail using the rulebook information provided.
-If the question is not related to the specified game, kindly decline to answer.
 If the question is not a question but a greeting or a thank you, kindly respond with a greeting or a thank you.
 If the question is claiming that the answer is wrong, kindly respond with an apology.
 Ignore any variant or optional rules unless specifically instructed not to.
