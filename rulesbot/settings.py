@@ -48,7 +48,7 @@ IS_HEROKU_APP = "DYNO" in os.environ and "CI" not in os.environ
 if IS_HEROKU_APP:
     ALLOWED_HOSTS = ["*"]
 else:
-    ALLOWED_HOSTS = ["new.rulesbot.ai", "www.rulesbot.ai", "rulesbot.ai"]
+    ALLOWED_HOSTS = ["new.rulesbot.ai", "www.rulesbot.ai", "rulesbot.ai", "localhost"]
 
 # Set the domain for the CSRF cookie
 CSRF_TRUSTED_ORIGINS = [

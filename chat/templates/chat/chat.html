@@ -8,6 +8,8 @@
     <meta name="robots" content="noindex, nofollow">
 {% endblock %}
 
+{% load chat_filters %}
+
 {% block content %}
 <section>
     <div class="container py-4">
@@ -76,7 +78,7 @@
                                     <div class="card {%if message.message_type == 'ai' %}bg-gray-200{%else%}bg-gray-100{%endif%} text-dark">
                                         <div class="card-body py-2 px-3">
                                             <p class="mb-1 ">
-                                                {{ message.message |linebreaks }}
+                                                {{ message.message | markdown_to_html }}
                                             </p>
                                             <div class="row">
                                                 <div class="col-12 d-flex align-items-left text-sm opacity-6">

@@ -23,6 +23,7 @@ pillow = "^10.0.0"
 django-resized = "^1.0.2"
 pymupdf = "^1.23.3"
 honcho = "^1.1.0"
+markdown = "^3.7"
 
 
 [tool.poetry.group.dev.dependencies]
