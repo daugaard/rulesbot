@@ -14,11 +14,16 @@
                             <p class="mb-0">Enter your email and password to register</p>
                         </div>
                         <div class="card-body">
-                            <form action="{% url 'users:sign-up' %}" method="post">
+                            <form action="{% url 'users:sign-up' %}" method="post" onsubmit="gtag('event', 'sign_up_form_submit', {'event_category': 'Sign Up', 'event_label': 'Form Submitted'});">
                                 {% csrf_token %}
                                 {{ form }}
                                 <div class="text-center">
-                                    <input type="submit" class="btn bg-gradient-primary w-100 mt-4 mb-0" value="Sign up" />
+                                    <form id="signUpForm" >
+                                    <input
+                                        type="submit"
+                                        class="btn bg-gradient-primary w-100 mt-4 mb-0"
+                                        value="Sign up"
+                                    />
                                 </div>
                             </form>
                         </div>
