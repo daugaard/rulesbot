@@ -42,5 +42,6 @@ docker build . -t rulesbot -t registry.practicalai.io/rulesbot && docker push re
 
 Then login to server and reload rulesbot container:
 ```
-./apps/run-rulesbot-container.sh
+cd apps
+./run-rulesbot-container.sh
 ```
