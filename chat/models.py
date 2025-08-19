@@ -31,6 +31,14 @@ class ChatSession(models.Model):
             self.session_slug = str(uuid.uuid4())
         return super().save(*args, **kwargs)
 
+    @classmethod
+    def no_user_no_messages(cls):
+        return (
+            cls.objects.filter(user=None)
+            .annotate(message_count=models.Count("message"))
+            .filter(message_count=0)
+        )
+
 
 class Message(models.Model):
     MESSAGE_TYPES = (("system", "System"), ("human", "Human"), ("ai", "AI"))
