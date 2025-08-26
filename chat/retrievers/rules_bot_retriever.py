@@ -1,5 +1,5 @@
-from langchain import FAISS
 from langchain.schema import BaseRetriever
+from langchain_community.vectorstores import FAISS
 
 
 class RulesBotRetriever(BaseRetriever):

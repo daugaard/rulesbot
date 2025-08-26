@@ -1,7 +1,7 @@
-from langchain.chat_models import ChatOpenAI
-from langchain.document_loaders import PyMuPDFLoader
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import PyMuPDFLoader
+from langchain_openai import ChatOpenAI
 
 from rulesbot.settings import DEFAULT_CHATGPT_MODEL
 
@@ -77,7 +77,7 @@ def _summarize_setup_instructions(setup_page_content):
     """
     llm = ChatOpenAI(temperature=0.1, model=DEFAULT_CHATGPT_MODEL)
     prompt = f"Provided are setup instructions for a board game. Please clean them up and summarize them into an easy-to-read format. \n\n{setup_page_content}\n\nSummary:"
-    return llm.predict(prompt)
+    return str(llm.invoke(prompt).content)
 
 
 def _clean_up_page(page_content):
@@ -88,6 +88,6 @@ def _clean_up_page(page_content):
     llm = ChatOpenAI(temperature=0.1, model=DEFAULT_CHATGPT_MODEL)
     prompt = f"Please clean up the following page of rules to make it easier to read. \n\n{page_content}\n\nCleaned up rules:"
     print(f"Input: {page_content}")
-    cleaned_up_page_content = llm.predict(prompt)
+    cleaned_up_page_content = str(llm.invoke(prompt).content)
     print(f"Output: {cleaned_up_page_content}")
     return cleaned_up_page_content

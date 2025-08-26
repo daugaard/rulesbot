@@ -1,12 +1,12 @@
 import shutil
 from unittest import mock
 
-import langchain
 from django.contrib.admin.sites import AdminSite
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
-from langchain.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_openai import ChatOpenAI
 
 from games.admin import GameAdmin
 from games.models import Document, Game
@@ -149,7 +149,7 @@ class DocumentIngestionServiceTest(TestCase):
             with mock.patch(
                 "games.loaders.pdf_loader_and_summarizer.ChatOpenAI"
             ) as chat_opem_ai_mock:
-                llm = mock.Mock(spec=langchain.chat_models.ChatOpenAI)
+                llm = mock.Mock(spec=ChatOpenAI)
                 llm.predict.return_value = "some summarized text"
                 chat_opem_ai_mock.return_value = llm
 
