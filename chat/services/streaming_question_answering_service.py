@@ -1,10 +1,10 @@
 from enum import Enum, auto
 
-from langchain import PromptTemplate
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.chains import ConversationalRetrievalChain
-from langchain.chat_models import ChatOpenAI
 from langchain.schema.messages import AIMessage, HumanMessage
+from langchain_core.prompts import PromptTemplate
+from langchain_openai import ChatOpenAI
 
 from chat.retrievers.rules_bot_retriever import RulesBotRetriever
 from rulesbot.settings import DEFAULT_CHATGPT_MODEL
@@ -78,7 +78,7 @@ def ask_question(question, chat_session, response_queue):
 
 def _query_conversational_retrieval_chain(question, chat_session, response_queue):
     qa_chain = _setup_conversational_retrieval_chain(chat_session, response_queue)
-    return qa_chain(
+    return qa_chain.invoke(
         {"question": question, "chat_history": _get_chat_history(chat_session)}
     )
 

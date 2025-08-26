@@ -45,3 +45,11 @@ Then login to server and reload rulesbot container:
 cd apps
 ./run-rulesbot-container.sh
 ```
+
+### Run a production shell
+
+Login to the server and start a docker container with a shell command:
+```
+docker run -it --rm --env-file .rulesbot-env --net rulesbot-prod registry.practicalai.io/rulesbot /bin/bash
+poetry run ./manage.py shell
+```

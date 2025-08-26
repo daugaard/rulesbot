@@ -2,9 +2,9 @@ from functools import lru_cache
 
 from django.conf import settings
 from django.core.files.base import ContentFile
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.embeddings.fake import DeterministicFakeEmbedding
-from langchain.vectorstores import FAISS
+from langchain_community.embeddings.fake import DeterministicFakeEmbedding
+from langchain_community.vectorstores import FAISS
+from langchain_openai.embeddings import OpenAIEmbeddings
 
 EMBEDDING_LENGTH = 1536
 
@@ -66,7 +66,9 @@ class GameVectorStore:
         try:
             self.game.faiss_file.open()
             return FAISS.deserialize_from_bytes(
-                self.game.faiss_file.read(), self.embedding
+                self.game.faiss_file.read(),
+                self.embedding,
+                allow_dangerous_deserialization=True,
             )
         except ValueError as e:
             if "attribute has no file associated with it." in str(e):

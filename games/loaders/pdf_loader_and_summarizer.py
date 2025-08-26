@@ -1,7 +1,7 @@
-from langchain.chat_models import ChatOpenAI
-from langchain.document_loaders import PyMuPDFLoader
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import PyMuPDFLoader
+from langchain_openai import ChatOpenAI
 
 from rulesbot.settings import DEFAULT_CHATGPT_MODEL
 
