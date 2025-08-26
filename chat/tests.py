@@ -4,11 +4,11 @@ from unittest import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
-from langchain.document_loaders.base import Document
-from langchain.embeddings.fake import DeterministicFakeEmbedding
-from langchain.llms.fake import FakeListLLM, FakeStreamingListLLM
 from langchain.schema.messages import AIMessage, HumanMessage
-from langchain.vectorstores import FAISS
+from langchain_community.embeddings.fake import DeterministicFakeEmbedding
+from langchain_community.llms.fake import FakeListLLM, FakeStreamingListLLM
+from langchain_community.vectorstores import FAISS
+from langchain_core.documents.base import Document
 
 from chat.models import ChatSession
 from chat.retrievers.rules_bot_retriever import RulesBotRetriever
