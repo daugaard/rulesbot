@@ -20,10 +20,13 @@ Ignore any variant or optional rules unless specifically instructed not to.
 **Rulebook Context:**
 {context}
 
+"""
 
-**User's Question:** {input}
+condense_question_for_retrieval_prompt_template = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
+If the follow up question is not a question do not rephrase it.
 
-**Answer:**"""
+If the question pertains to the setup of a game, rephrase it to focus on the setup process and ensure you mention "setup" and "start of game" in the question.
+"""
 
 
 class QueueSignals(Enum):
@@ -83,12 +86,7 @@ def _setup_conversational_retrieval_chain(chat_session, response_queue):
 
     contextualize_q_prompt = ChatPromptTemplate.from_messages(
         [
-            (
-                "system",
-                """Given the following conversation and a follow up question,
-    rephrase the follow up question to be a standalone question, in its original language.
-    If the follow up question is not a question do not rephrase it.""",
-            ),
+            ("system", condense_question_for_retrieval_prompt_template),
             MessagesPlaceholder("chat_history"),
             ("human", "{input}"),
         ]
@@ -103,7 +101,14 @@ def _setup_conversational_retrieval_chain(chat_session, response_queue):
         prompt=contextualize_q_prompt,
     )
 
-    qa_prompt = ChatPromptTemplate.from_template(personalized_prompt_template)
+    qa_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", personalized_prompt_template),
+            MessagesPlaceholder("chat_history"),
+            ("user", "{input}"),
+        ]
+    )
+
     stuff_docs_chain = create_stuff_documents_chain(
         llm=ChatOpenAI(
             model=DEFAULT_CHATGPT_MODEL,
@@ -122,7 +127,7 @@ def _setup_conversational_retrieval_chain(chat_session, response_queue):
 
 def _get_chat_history(chat_session):
     chat_history = []
-    latest_messages = chat_session.message_set.order_by("-created_at")[:8]
+    latest_messages = chat_session.message_set.order_by("-created_at")[:12]
     latest_messages_in_cronological_order = reversed(latest_messages)
     for message in latest_messages_in_cronological_order:
         if message.message_type == "human":
