@@ -1,9 +1,11 @@
 from enum import Enum, auto
 
 from langchain.callbacks.base import BaseCallbackHandler
-from langchain.chains import ConversationalRetrievalChain
+from langchain.chains import create_retrieval_chain
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.chains.history_aware_retriever import create_history_aware_retriever
 from langchain.schema.messages import AIMessage, HumanMessage
-from langchain_core.prompts import PromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
 
 from chat.retrievers.rules_bot_retriever import RulesBotRetriever
@@ -19,18 +21,9 @@ Ignore any variant or optional rules unless specifically instructed not to.
 {context}
 
 
-**User's Question:** {question}
+**User's Question:** {input}
 
 **Answer:**"""
-
-condense_question_template = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
-If the follow up question is not a question do not rephrase it.
-
-**Conversation**:
-{chat_history}
-**Follow Up Question**: {question}
-**Standalone Question**:
-"""
 
 
 class QueueSignals(Enum):
@@ -67,7 +60,7 @@ def ask_question(question, chat_session, response_queue):
 
     answer = result["answer"]
     ai_message = chat_session.message_set.create(message=answer, message_type="ai")
-    for source_document in result["source_documents"]:
+    for source_document in result["context"]:
         ai_message.sourcedocument_set.create(
             document_id=source_document.metadata["document_id"],
             page_number=source_document.metadata["page"] + 1,  # 0-indexed
@@ -79,7 +72,7 @@ def ask_question(question, chat_session, response_queue):
 def _query_conversational_retrieval_chain(question, chat_session, response_queue):
     qa_chain = _setup_conversational_retrieval_chain(chat_session, response_queue)
     return qa_chain.invoke(
-        {"question": question, "chat_history": _get_chat_history(chat_session)}
+        {"input": question, "chat_history": _get_chat_history(chat_session)}
     )
 
 
@@ -87,29 +80,44 @@ def _setup_conversational_retrieval_chain(chat_session, response_queue):
     personalized_prompt_template = prompt_template.replace(
         "%%GAME%%", chat_session.game.name
     )
-    question_answering_prompt = PromptTemplate(
-        template=personalized_prompt_template, input_variables=["context", "question"]
-    )
-    condense_question_prompt = PromptTemplate(
-        template=condense_question_template,
-        input_variables=["chat_history", "question"],
+
+    contextualize_q_prompt = ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                """Given the following conversation and a follow up question,
+    rephrase the follow up question to be a standalone question, in its original language.
+    If the follow up question is not a question do not rephrase it.""",
+            ),
+            MessagesPlaceholder("chat_history"),
+            ("human", "{input}"),
+        ]
     )
 
-    callback_handler = QueueCallbackHandler(response_queue)
-
-    return ConversationalRetrievalChain.from_llm(
-        llm=ChatOpenAI(
-            streaming=True, callbacks=[callback_handler], model=DEFAULT_CHATGPT_MODEL
-        ),
-        condense_question_llm=ChatOpenAI(temperature=0.1, model=DEFAULT_CHATGPT_MODEL),
-        condense_question_prompt=condense_question_prompt,
+    history_aware_retriever = create_history_aware_retriever(
+        llm=ChatOpenAI(model=DEFAULT_CHATGPT_MODEL, temperature=0.1),
         retriever=RulesBotRetriever(
-            index=chat_session.game.vector_store.index, search_kwargs={"k": 3}
+            index=chat_session.game.vector_store.index,
+            search_kwargs={"k": 3},
         ),
-        return_source_documents=True,
-        combine_docs_chain_kwargs={"prompt": question_answering_prompt},
-        verbose=False,
+        prompt=contextualize_q_prompt,
     )
+
+    qa_prompt = ChatPromptTemplate.from_template(personalized_prompt_template)
+    stuff_docs_chain = create_stuff_documents_chain(
+        llm=ChatOpenAI(
+            model=DEFAULT_CHATGPT_MODEL,
+            temperature=0.1,
+            streaming=True,
+            callbacks=[QueueCallbackHandler(response_queue)],
+        ),
+        prompt=qa_prompt,
+        document_variable_name="context",
+    )
+
+    retrieval_chain = create_retrieval_chain(history_aware_retriever, stuff_docs_chain)
+
+    return retrieval_chain
 
 
 def _get_chat_history(chat_session):
