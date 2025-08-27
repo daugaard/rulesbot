@@ -85,25 +85,33 @@ class StreamingQuestionAnsweringServiceTests(TestCase):
 
         history = _get_chat_history(chat_session)
 
-        max_messages = 8
-        self.assertEqual(len(history), max_messages)  # max 8 messages
+        max_messages = 12
+        self.assertEqual(len(history), max_messages)  # max 12 messages
 
-        self.assertEqual(history[0].content, "Message 16")
+        self.assertEqual(history[0].content, "Message 14")
         assert isinstance(history[0], HumanMessage)
-        self.assertEqual(history[1].content, "Message 16")
+        self.assertEqual(history[1].content, "Message 14")
         assert isinstance(history[1], AIMessage)
-        self.assertEqual(history[2].content, "Message 17")
+        self.assertEqual(history[2].content, "Message 15")
         assert isinstance(history[2], HumanMessage)
-        self.assertEqual(history[3].content, "Message 17")
+        self.assertEqual(history[3].content, "Message 15")
         assert isinstance(history[3], AIMessage)
-        self.assertEqual(history[4].content, "Message 18")
+        self.assertEqual(history[4].content, "Message 16")
         assert isinstance(history[4], HumanMessage)
-        self.assertEqual(history[5].content, "Message 18")
+        self.assertEqual(history[5].content, "Message 16")
         assert isinstance(history[5], AIMessage)
-        self.assertEqual(history[6].content, "Message 19")
+        self.assertEqual(history[6].content, "Message 17")
         assert isinstance(history[6], HumanMessage)
-        self.assertEqual(history[7].content, "Message 19")
+        self.assertEqual(history[7].content, "Message 17")
         assert isinstance(history[7], AIMessage)
+        self.assertEqual(history[8].content, "Message 18")
+        assert isinstance(history[8], HumanMessage)
+        self.assertEqual(history[9].content, "Message 18")
+        assert isinstance(history[9], AIMessage)
+        self.assertEqual(history[10].content, "Message 19")
+        assert isinstance(history[10], HumanMessage)
+        self.assertEqual(history[11].content, "Message 19")
+        assert isinstance(history[11], AIMessage)
 
     @prevent_warnings
     def test_ask_question(self):

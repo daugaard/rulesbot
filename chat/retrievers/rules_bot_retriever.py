@@ -1,5 +1,6 @@
 from langchain.schema import BaseRetriever
 from langchain_community.vectorstores import FAISS
+from langchain_core.callbacks.manager import CallbackManagerForRetrieverRun
 
 
 class RulesBotRetriever(BaseRetriever):
@@ -37,6 +38,11 @@ class RulesBotRetriever(BaseRetriever):
                     docs = docs + setup_documents
 
         return docs
+
+    def _get_relevant_documents(
+        self, query: str, *, run_manager: CallbackManagerForRetrieverRun
+    ):
+        return self.get_relevant_documents(query)
 
     def _is_setup_question(self, question):
         question = question.lower()
