@@ -16,8 +16,12 @@ def ingest_document(document, load_and_split_func=None):
         load_and_split_func = load_and_split
 
     with tempfile.NamedTemporaryFile() as file:
-        # Download and heck that the downloaded file is a valid PDF file
-        _download_to_file(document.url, file)
+        # Download and check that the downloaded file is a valid PDF file
+        if document.url:
+            _download_to_file(document.url, file)
+        elif document.rulebook_file:
+            _download_to_file(document.rulebook_file.url, file)
+
         if not _valid_pdf(file.name):
             raise ValueError("Invalid PDF file")
 
