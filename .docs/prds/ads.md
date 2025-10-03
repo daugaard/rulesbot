@@ -141,3 +141,47 @@ The ads system must be manageable through Django Admin and provide basic analyti
 The implementing agent should define its own phases and tasks to complete this PRD and add them here.
 
 When done, mark the phase as complete.
+
+### Phase 1: Core Infrastructure ⏳
+- [x] Create ads Django app
+- [x] Create Ad model with all fields (title, description, image, link, game FK, weight)
+- [x] Create AdImpression tracking model
+- [x] Create AdClick tracking model
+- [x] Add ads app to INSTALLED_APPS
+- [x] Create and run migrations
+- [x] Write model tests (Ad, AdImpression, AdClick)
+
+### Phase 2: Ad Selection & Serving Logic ⏳
+- [ ] Implement weighted random ad selection service
+- [ ] Create ad serving function (context-aware: game-specific vs generic)
+- [ ] Create context processor to inject ads into chat page context
+- [ ] Log impressions when ad is served
+- [ ] Write tests for weighted selection algorithm
+- [ ] Write tests for game-specific vs generic fallback logic
+
+### Phase 3: Click Tracking ⏳
+- [ ] Create URL patterns for ads app
+- [ ] Implement ad click tracking redirect view (/ads/click/<ad_id>)
+- [ ] Log clicks and redirect to target URL
+- [ ] Write tests for click tracking and redirect behavior
+
+### Phase 4: Django Admin Integration ⏳
+- [ ] Register Ad model in Django admin
+- [ ] Add custom admin list display with impression/click counts
+- [ ] Add CTR calculation to admin
+- [ ] Register AdImpression and AdClick models (read-only)
+- [ ] Write tests for admin custom fields and calculations
+
+### Phase 5: Frontend Display ⏳
+- [ ] Update chat.html template to display ads in sidebar
+- [ ] Style ad component (title, description, image, CTA link)
+- [ ] Ensure clicks route through tracking endpoint
+- [ ] Write integration tests for ad display on chat pages
+
+### Phase 6: End-to-End Testing & Validation ⏳
+- [ ] Test ad creation via admin
+- [ ] Test weighted random selection (game-specific and generic)
+- [ ] Test impression logging
+- [ ] Test click tracking and redirect
+- [ ] Verify analytics display in admin
+- [ ] Run full test suite and ensure all tests pass

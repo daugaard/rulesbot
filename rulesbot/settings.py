@@ -60,6 +60,7 @@ CSRF_TRUSTED_ORIGINS = [
 # Application definition
 
 INSTALLED_APPS = [
+    "ads.apps.AdsConfig",
     "chat.apps.ChatConfig",
     "games.apps.GamesConfig",
     "pages.apps.PagesConfig",
