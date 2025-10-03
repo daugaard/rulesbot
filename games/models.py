@@ -47,10 +47,11 @@ class Game(models.Model):
 class Document(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     display_name = models.CharField(max_length=500)
-    url = models.CharField(max_length=500)  # URL to ingest from
+    url = models.CharField(max_length=500, blank=True, null=True)  # URL to ingest from
     public_url = models.CharField(
         max_length=1000, null=True, blank=True
     )  # URL to display to users
+    rulebook_file = models.FileField(upload_to="games/rulebooks", null=True, blank=True)
     ingested = models.BooleanField(default=False)
 
     ignore_pages = models.CharField(

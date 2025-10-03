@@ -53,3 +53,13 @@ Login to the server and start a docker container with a shell command:
 docker run -it --rm --env-file .rulesbot-env --net rulesbot-prod registry.practicalai.io/rulesbot /bin/bash
 poetry run ./manage.py shell
 ```
+
+
+### Cleanup empty chats
+
+```
+from chat.models import ChatSession
+empty_sessions = ChatSession.no_user_no_messages()
+for session in empty_sessions:
+  session.delete()
+```
