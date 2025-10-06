@@ -151,13 +151,15 @@ When done, mark the phase as complete.
 - [x] Create and run migrations
 - [x] Write model tests (Ad, AdImpression, AdClick)
 
-### Phase 2: Ad Selection & Serving Logic ⏳
-- [ ] Implement weighted random ad selection service
-- [ ] Create ad serving function (context-aware: game-specific vs generic)
-- [ ] Create context processor to inject ads into chat page context
-- [ ] Log impressions when ad is served
-- [ ] Write tests for weighted selection algorithm
-- [ ] Write tests for game-specific vs generic fallback logic
+### Phase 2: Ad Selection & Serving Logic ✅
+- [x] Implement weighted random ad selection service
+- [x] Create ad serving function (context-aware: game-specific vs generic)
+- [x] Inject ad context directly in chat view (view_chat_session)
+- [x] Log impressions when ad is served
+- [x] Write tests for weighted selection algorithm
+- [x] Write tests for game-specific vs generic fallback logic
+- [x] Update chat template to display ads in sidebar
+- [x] Create ads URL structure (placeholder for Phase 3)
 
 ### Phase 3: Click Tracking ⏳
 - [ ] Create URL patterns for ads app
