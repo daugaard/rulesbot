@@ -167,12 +167,13 @@ When done, mark the phase as complete.
 - [x] Log clicks and redirect to target URL
 - [x] Write tests for click tracking and redirect behavior
 
-### Phase 4: Django Admin Integration ⏳
-- [ ] Register Ad model in Django admin
-- [ ] Add custom admin list display with impression/click counts
-- [ ] Add CTR calculation to admin
-- [ ] Register AdImpression and AdClick models (read-only)
-- [ ] Write tests for admin custom fields and calculations
+### Phase 4: Django Admin Integration ✅
+- [x] Register Ad model in Django admin
+- [x] Add custom admin list display with basic fields
+- [x] Create analytics dashboard view with time-based filtering
+- [x] Implement custom analytics template with CTR display
+- [x] Add time-based metric methods to Ad model
+- [x] Write comprehensive tests for analytics view
 
 ### Phase 5: Frontend Display ⏳
 - [ ] Update chat.html template to display ads in sidebar

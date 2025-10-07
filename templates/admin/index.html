@@ -1,0 +1,18 @@
+{% extends "admin/index.html" %}
+{% load i18n static %}
+
+{% block sidebar %}
+{{ block.super }}
+<div class="module" style="margin-top: 20px;">
+    <table>
+        <caption>
+            <a href="{% url 'admin:ads_ad_changelist' %}" class="section">Ads</a>
+        </caption>
+        <tr>
+            <th scope="row">
+                <a href="{% url 'admin:ads_ad_analytics' %}">📊 View Ad Analytics</a>
+            </th>
+        </tr>
+    </table>
+</div>
+{% endblock %}

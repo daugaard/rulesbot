@@ -1,0 +1,150 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    .analytics-filters {
+        margin: 20px 0;
+        padding: 15px;
+        background: #f8f8f8;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .analytics-filters a {
+        display: inline-block;
+        padding: 8px 16px;
+        margin-right: 10px;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        text-decoration: none;
+        color: #333;
+    }
+
+    .analytics-filters a.active {
+        background: #417690;
+        color: white;
+        border-color: #417690;
+    }
+
+    .analytics-filters a:hover {
+        background: #e8e8e8;
+    }
+
+    .analytics-filters a.active:hover {
+        background: #2e5266;
+    }
+
+    .analytics-table {
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    .analytics-table th {
+        text-align: left;
+        padding: 10px;
+        background: #417690;
+        color: white;
+        font-weight: bold;
+    }
+
+    .analytics-table td {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .analytics-table tr:hover {
+        background: #f8f8f8;
+    }
+
+    .ctr-high {
+        color: #28a745;
+        font-weight: bold;
+    }
+
+    .ctr-medium {
+        color: #ffc107;
+        font-weight: bold;
+    }
+
+    .ctr-low {
+        color: #6c757d;
+    }
+
+    .no-data {
+        padding: 40px;
+        text-align: center;
+        color: #666;
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:ads_ad_changelist' %}">Ads</a>
+    &rsaquo; Analytics
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Ad Analytics - {{ period_label }}</h1>
+
+<div class="analytics-filters">
+    <strong>Time Period:</strong>
+    <a href="?period=7days" {% if current_period == '7days' %}class="active"{% endif %}>Last 7 Days</a>
+    <a href="?period=30days" {% if current_period == '30days' %}class="active"{% endif %}>Last 30 Days</a>
+    <a href="?period=all" {% if current_period == 'all' %}class="active"{% endif %}>All Time</a>
+</div>
+
+{% if analytics_data %}
+<table class="analytics-table">
+    <thead>
+        <tr>
+            <th>Ad Title</th>
+            <th>Game</th>
+            <th>Impressions</th>
+            <th>Clicks</th>
+            <th>CTR</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in analytics_data %}
+        <tr>
+            <td>
+                <a href="{% url 'admin:ads_ad_change' item.ad.id %}">
+                    {{ item.ad.title }}
+                </a>
+            </td>
+            <td>
+                {% if item.ad.game %}
+                    {{ item.ad.game.name }}
+                {% else %}
+                    <em>Generic</em>
+                {% endif %}
+            </td>
+            <td>{{ item.impressions }}</td>
+            <td>{{ item.clicks }}</td>
+            <td>
+                {% if item.ctr >= 5 %}
+                    <span class="ctr-high">{{ item.ctr|floatformat:2 }}%</span>
+                {% elif item.ctr >= 2 %}
+                    <span class="ctr-medium">{{ item.ctr|floatformat:2 }}%</span>
+                {% else %}
+                    <span class="ctr-low">{{ item.ctr|floatformat:2 }}%</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="no-data">
+    <p>No ads found. <a href="{% url 'admin:ads_ad_add' %}">Create your first ad</a></p>
+</div>
+{% endif %}
+
+{% endblock %}

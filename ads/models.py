@@ -38,20 +38,63 @@ class Ad(models.Model):
         game_info = f" ({self.game.name})" if self.game else " (Generic)"
         return f"{self.title}{game_info}"
 
-    @property
-    def impressions_count(self):
-        return self.adimpression_set.count()
+    def get_impressions_count(self, start_date=None, end_date=None):
+        """
+        Get impression count with optional date filtering.
 
-    @property
-    def clicks_count(self):
-        return self.adclick_set.count()
+        Args:
+            start_date: Start date for filtering (inclusive)
+            end_date: End date for filtering (inclusive)
 
-    @property
-    def ctr(self):
-        """Click-through rate as a percentage"""
-        if self.impressions_count == 0:
+        Returns:
+            Count of impressions within the date range
+        """
+        queryset = self.adimpression_set.all()
+
+        if start_date:
+            queryset = queryset.filter(timestamp__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(timestamp__lte=end_date)
+
+        return queryset.count()
+
+    def get_clicks_count(self, start_date=None, end_date=None):
+        """
+        Get clicks count with optional date filtering.
+
+        Args:
+            start_date: Start date for filtering (inclusive)
+            end_date: End date for filtering (inclusive)
+
+        Returns:
+            Count of clicks within the date range
+        """
+        queryset = self.adclick_set.all()
+
+        if start_date:
+            queryset = queryset.filter(timestamp__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(timestamp__lte=end_date)
+
+        return queryset.count()
+
+    def get_ctr(self, start_date=None, end_date=None):
+        """
+        Get CTR with optional date filtering.
+
+        Args:
+            start_date: Start date for filtering (inclusive)
+            end_date: End date for filtering (inclusive)
+
+        Returns:
+            Click-through rate as a percentage
+        """
+        impressions = self.get_impressions_count(start_date, end_date)
+        if impressions == 0:
             return 0
-        return (self.clicks_count / self.impressions_count) * 100
+
+        clicks = self.get_clicks_count(start_date, end_date)
+        return (clicks / impressions) * 100
 
 
 class AdImpression(models.Model):
