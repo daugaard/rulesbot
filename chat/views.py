@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import generic
 
+from ads.services import serve_ad_with_impression
 from chat.forms import ChatForm
 from chat.models import ChatSession
 from chat.services import streaming_question_answering_service
@@ -61,10 +62,18 @@ def view_chat_session(request, session_slug):
             reverse=True,
         )
 
+    # Get an ad for this game and log the impression
+    ad = serve_ad_with_impression(chat_session.game)
+
     return render(
         request,
         "chat/chat.html",
-        {"chat_session": chat_session, "form": ChatForm(), "sessions": sessions[:7]},
+        {
+            "chat_session": chat_session,
+            "form": ChatForm(),
+            "sessions": sessions[:4],
+            "ad": ad,
+        },
     )
 
 

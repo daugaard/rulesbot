@@ -30,6 +30,7 @@ urlpatterns = [
     path("games/", include("games.urls")),
     path("chat/", include("chat.urls")),
     path("users/", include("users.urls")),
+    path("ads/", include("ads.urls")),
     path("admin/", admin.site.urls),
     path(
         "sitemap.xml",

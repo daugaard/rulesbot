@@ -33,14 +33,36 @@
                             New chat
                         </a>
                     </ul>
-                    {% else %}
-                        <ul class="list-group mb-4 d-lg-block d-none">
-                            <li class="list-group-item">
-                                Create an account to save your chat sessions!
-                            </li>
-                            <a href="{% url 'users:sign-up'%}" class="list-group-item list-group-item-action active">Sign up!</a>
-                        </ul>
-                    {% endif %}
+                {% else %}
+                    <ul class="list-group mb-4 d-lg-block d-none">
+                        <li class="list-group-item">
+                            Create an account to save your chat sessions!
+                        </li>
+                        <a href="{% url 'users:sign-up'%}" class="list-group-item list-group-item-action active">Sign up!</a>
+                    </ul>
+                {% endif %}
+
+                {% if ad %}
+                    <div class="card blur shadow-blur mb-4 d-lg-block d-none border">
+                        <div class="card-body p-3">
+                            {% if ad.image %}
+                                <a href="{% url 'ads:click' ad.id %}" target="_blank" rel="noopener">
+                                    <img src="{{ ad.image.url }}" class="img-fluid rounded mb-2" alt="{{ ad.title }}">
+                                </a>
+                            {% endif %}
+                            <h6 class="mb-1">
+                                <a href="{% url 'ads:click' ad.id %}" target="_blank" rel="noopener" class="text-dark text-decoration-none">
+                                    {{ ad.title }}
+                                </a>
+                            </h6>
+                            <p class="text-sm mb-2 text-truncate">{{ ad.description }}</p>
+                            <a href="{% url 'ads:click' ad.id %}" target="_blank" rel="noopener" class="btn btn-sm bg-gradient-primary w-100">
+                                Learn More
+                            </a>
+                            <p class="text-xs text-muted mb-0 text-end"><em>Paid Link</em></p>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
             <div class="col-lg-10">
                 <div class="card blur shadow-blur" style="height:85vh !important">
