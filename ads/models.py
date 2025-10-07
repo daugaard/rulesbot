@@ -11,7 +11,9 @@ class Ad(models.Model):
 
     title = models.CharField(max_length=255)
     description = models.TextField(max_length=500)
-    image = models.URLField(blank=True, null=True, help_text="Optional image URL")
+    image = models.FileField(
+        upload_to="ads/images", null=True, blank=True, help_text="Optional image URL"
+    )
     link = models.URLField(
         help_text="Target URL (e.g., Amazon affiliate link)", null=False, blank=False
     )
