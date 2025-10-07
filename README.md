@@ -8,7 +8,7 @@ AI powered boardgame rules bot.
 ```
 poetry install
 
-poetry shell # start a shell so you don't have to poetry run everything
+poetry shell # start a shell so you don't have to poetry run everything (optional)
 
 python manage.py migrate
 python manage.py createsuperuser
@@ -17,20 +17,20 @@ python manage.py createsuperuser
 ## Run
 
 ```
-python manage.py runserver
+poetry run python manage.py runserver
 ```
 
 ## Shell
 
 ```
-python manage.py shell
+poetry run python manage.py shell
 ```
 
 ## Tests
 
 ```
-coverage run --source='.' manage.py test
-coverage report
+poetry run coverage run --source='.' manage.py test
+poetry run coverage report
 ```
 
 ## Deploy

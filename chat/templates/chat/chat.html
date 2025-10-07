@@ -47,7 +47,7 @@
                         <div class="card-body p-3">
                             {% if ad.image %}
                                 <a href="{% url 'ads:click' ad.id %}" target="_blank" rel="noopener">
-                                    <img src="{{ ad.image }}" class="img-fluid rounded mb-2" alt="{{ ad.title }}">
+                                    <img src="{{ ad.image.url }}" class="img-fluid rounded mb-2" alt="{{ ad.title }}">
                                 </a>
                             {% endif %}
                             <h6 class="mb-1">
