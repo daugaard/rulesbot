@@ -71,7 +71,7 @@ def view_chat_session(request, session_slug):
         {
             "chat_session": chat_session,
             "form": ChatForm(),
-            "sessions": sessions[:7],
+            "sessions": sessions[:4],
             "ad": ad,
         },
     )
