@@ -162,10 +162,10 @@ When done, mark the phase as complete.
 - [x] Create ads URL structure (placeholder for Phase 3)
 
 ### Phase 3: Click Tracking ⏳
-- [ ] Create URL patterns for ads app
-- [ ] Implement ad click tracking redirect view (/ads/click/<ad_id>)
-- [ ] Log clicks and redirect to target URL
-- [ ] Write tests for click tracking and redirect behavior
+- [x] Create URL patterns for ads app
+- [x] Implement ad click tracking redirect view (/ads/click/<ad_id>)
+- [x] Log clicks and redirect to target URL
+- [x] Write tests for click tracking and redirect behavior
 
 ### Phase 4: Django Admin Integration ⏳
 - [ ] Register Ad model in Django admin

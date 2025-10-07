@@ -5,7 +5,7 @@ Ad serving service with weighted random selection.
 import random
 from typing import Optional
 
-from ads.models import Ad, AdImpression
+from ads.models import Ad, AdClick, AdImpression
 from games.models import Game
 
 
@@ -75,3 +75,14 @@ def serve_ad_with_impression(game: Game) -> Optional[Ad]:
         AdImpression.objects.create(ad=ad)
 
     return ad
+
+
+def record_ad_click(ad: Ad):
+    """
+    Record a click for the given ad.
+
+    Args:
+        ad: The Ad instance that was clicked
+    """
+    click = AdClick.objects.create(ad=ad)
+    return click
