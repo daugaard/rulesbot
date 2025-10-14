@@ -1,0 +1,13 @@
+#!/bin/bash -e
+
+if [[ "$@" == *"honcho start web"* ]]; then
+  echo "Running pre-start commands..."
+  echo "Collecting static files..."
+  poetry run python manage.py collectstatic --noinput
+
+  echo "Applying database migrations..."
+  poetry run python manage.py migrate
+fi
+
+echo "Starting container with command : $@"
+exec "${@}"

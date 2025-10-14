@@ -45,6 +45,9 @@ RUN poetry check
 # Install Dependencies
 RUN poetry install --no-interaction --no-cache --without dev
 
+# Entrypoint prepares the database.
+ENTRYPOINT ["/app/bin/docker-entrypoint"]
+
 # Run Application
 EXPOSE 5000
 CMD [ "poetry", "run", "honcho", "start", "web" ]

@@ -45,13 +45,11 @@ IS_HEROKU_APP = "DYNO" in os.environ and "CI" not in os.environ
 # validation of the Host header in the incoming HTTP request. On other platforms you may need
 # to list the expected hostnames explicitly to prevent HTTP Host header attacks. See:
 # https://docs.djangoproject.com/en/4.2/ref/settings/#std-setting-ALLOWED_HOSTS
-if IS_HEROKU_APP:
-    ALLOWED_HOSTS = ["*"]
-else:
-    ALLOWED_HOSTS = ["new.rulesbot.ai", "www.rulesbot.ai", "rulesbot.ai", "localhost"]
+ALLOWED_HOSTS = ["*"]
 
 # Set the domain for the CSRF cookie
 CSRF_TRUSTED_ORIGINS = [
+    "https://ww2.rulesbot.ai",
     "https://new.rulesbot.ai",
     "https://www.rulesbot.ai",
     "https://rulesbot.ai",
