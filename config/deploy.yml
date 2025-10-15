@@ -59,6 +59,11 @@ env:
 #
 # aliases:
 #   shell: app exec --interactive --reuse "bash"
+aliases:
+  console: app exec --interactive --reuse "poetry run python manage.py shell"
+  shell: app exec --interactive --reuse "bash"
+  logs: app logs -f
+  db_shell: accessory exec rulesbot-postgres-prod --interactive --reuse "psql -U postgres -d rulesbot"
 
 # Use a different ssh user than root
 #
@@ -109,7 +114,6 @@ accessories:
   rulesbot-postgres-prod:
     image: postgres:15
     host: jotunheim.practicalai.io
-    port: 5432
     env:
       clear:
         POSTGRES_USER: postgres
@@ -117,3 +121,20 @@ accessories:
         POSTGRES_DB: rulesbot
     directories:
       - pg/data:/var/lib/postgresql/data
+  db_backup:
+    image: eeshugerman/postgres-backup-s3:16
+    host: jotunheim.practicalai.io
+    env:
+      clear:
+        SCHEDULE: "@daily"
+        BACKUP_KEEP_DAYS: 7
+        S3_REGION: us-east-1
+        S3_BUCKET: prod-rulesbot-ai
+        S3_PREFIX: backups
+        POSTGRES_HOST: rulesbotai-rulesbot-postgres-prod
+        POSTGRES_DATABASE: rulesbot
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+      secret:
+        - S3_ACCESS_KEY_ID
+        - S3_SECRET_ACCESS_KEY
