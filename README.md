@@ -3,7 +3,9 @@
 # RulesBot
 AI powered boardgame rules bot.
 
-## Setup
+
+## Development
+### Setup
 
 ```
 poetry install
@@ -14,44 +16,60 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-## Run
+### Run
 
 ```
 poetry run python manage.py runserver
 ```
 
-## Shell
+### Shell
 
 ```
 poetry run python manage.py shell
 ```
 
-## Tests
+### Tests
 
 ```
 poetry run coverage run --source='.' manage.py test
 poetry run coverage report
 ```
 
-## Deploy
+## Production
+All production deployment and resource management is done with Kamal.
 
-First build:
+Deploy a new version:
 ```
-docker build . -t rulesbot -t registry.practicalai.io/rulesbot && docker push registry.practicalai.io/rulesbot
-```
-
-Then login to server and reload rulesbot container:
-```
-cd apps
-./run-rulesbot-container.sh
+kamal deploy
 ```
 
 ### Run a production shell
 
 Login to the server and start a docker container with a shell command:
 ```
-docker run -it --rm --env-file .rulesbot-env --net rulesbot-prod registry.practicalai.io/rulesbot /bin/bash
-poetry run ./manage.py shell
+kamal shell
+```
+
+To start a django shell:
+```
+kamal console
+```
+
+### Database backup
+Databases are backed up daily to an S3 bucket, and retained for 30 days.
+
+You can also create a manual backup with:
+```
+kamal accessory exec db_backup "sh backup.sh"
+```
+
+You can restore the latest backup with:
+```
+kamal accessory exec db_backup "sh restore.sh"
+```
+Or a specific backup file:
+```
+kamal accessory exec db_backup "sh restore.sh <backup-timestamp>"
 ```
 
 
