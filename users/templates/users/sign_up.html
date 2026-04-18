@@ -16,9 +16,8 @@
                         <div class="card-body">
                             <form action="{% url 'users:sign-up' %}" method="post" onsubmit="gtag('event', 'sign_up_form_submit', {'event_category': 'Sign Up', 'event_label': 'Form Submitted'});">
                                 {% csrf_token %}
-                                {{ form }}
+                                {{ form.as_div }}
                                 <div class="text-center">
-                                    <form id="signUpForm" >
                                     <input
                                         type="submit"
                                         class="btn bg-gradient-primary w-100 mt-4 mb-0"
