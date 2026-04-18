@@ -23,7 +23,7 @@ class GameIndexViewTests(TestCase):
         response = self.client.get(reverse("games:index"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "No games are available.")
-        self.assertQuerysetEqual(response.context["games"], [])
+        self.assertQuerySetEqual(response.context["games"], [])
 
     def test_one_game(self):
         """
@@ -33,7 +33,7 @@ class GameIndexViewTests(TestCase):
         response = self.client.get(reverse("games:index"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test Game")
-        self.assertQuerysetEqual(response.context["games"], [game])
+        self.assertQuerySetEqual(response.context["games"], [game])
 
     def test_many_games(self):
         games = [
@@ -42,7 +42,7 @@ class GameIndexViewTests(TestCase):
         response = self.client.get(reverse("games:index"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test Game 0")
-        self.assertQuerysetEqual(response.context["games"], games)
+        self.assertQuerySetEqual(response.context["games"], games)
 
     def test_many_games_some_not_ingested(self):
         games = [
@@ -55,7 +55,7 @@ class GameIndexViewTests(TestCase):
         response = self.client.get(reverse("games:index"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test Game 0")
-        self.assertQuerysetEqual(response.context["games"], games)
+        self.assertQuerySetEqual(response.context["games"], games)
 
 
 class GameDetailViewTests(TestCase):
