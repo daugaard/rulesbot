@@ -74,7 +74,12 @@
             {% if user.is_authenticated %}
               <li><a class="nav-link" href="{% url 'chat:sessions' %}">Rules Chat Sessions</a></li>
               <li><a class="nav-link"  href="{% url 'users:account' %}">Manage Account</a></li>
-              <li><a class="nav-link"  href="{% url 'users:logout' %}">Log out</a></li>
+              <li class="nav-item">
+                <form method="post" action="{% url 'users:logout' %}" class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="nav-link border-0 bg-transparent">Log out</button>
+                </form>
+              </li>
             {% else %}
               <li class="nav-item">
                 <a href="{% url 'users:login' %}" class="btn btn-sm  bg-gradient-primary mb-0 me-1" role="button">Sign in</a>

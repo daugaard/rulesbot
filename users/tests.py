@@ -42,7 +42,9 @@ class TestViews(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "users/sign_up.html")
-        self.assertFormError(response, "form", "username", "Username already exists")
+        self.assertFormError(
+            response.context["form"], "username", "Username already exists"
+        )
 
     def test_post_signup_page_with_existing_email(self):
         User.objects.create_user(
@@ -59,7 +61,7 @@ class TestViews(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "users/sign_up.html")
-        self.assertFormError(response, "form", "email", "Email already exists")
+        self.assertFormError(response.context["form"], "email", "Email already exists")
 
     def test_post_signup_page_with_non_matching_password(self):
         response = self.client.post(
@@ -74,7 +76,7 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "users/sign_up.html")
         self.assertFormError(
-            response, "form", "confirm_password", "Passwords do not match"
+            response.context["form"], "confirm_password", "Passwords do not match"
         )
 
     def test_signup_user_cannot_access_admin(self):
@@ -142,18 +144,18 @@ class TestViews(TestCase):
         response = self.client.get("/users/account")
         self.assertEqual(response.status_code, 200)
 
-    def test_get_logout_page(self):
-        response = self.client.get("/users/logout")
+    def test_post_logout_page(self):
+        response = self.client.post("/users/logout")
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, "/")
 
-    def test_get_logout_page_after_login(self):
+    def test_post_logout_page_after_login(self):
         User.objects.create_user(username="testuser", email="test", password="test")
         self.client.login(username="testuser", password="test")
         response = self.client.get("/users/account")
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get("/users/logout")
+        response = self.client.post("/users/logout")
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, "/")
 
@@ -201,7 +203,9 @@ class TestViews(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "users/change_password.html")
-        self.assertFormError(response, "form", "current_password", "Incorrect password")
+        self.assertFormError(
+            response.context["form"], "current_password", "Incorrect password"
+        )
 
     def test_post_change_password_page_with_non_matching_passwords(self):
         User.objects.create_user(username="testuser", email="test", password="test")
@@ -217,8 +221,7 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "users/change_password.html")
         self.assertFormError(
-            response,
-            "form",
+            response.context["form"],
             "confirm_new_password",
             "Passwords do not match",
         )

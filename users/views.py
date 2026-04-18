@@ -1,7 +1,8 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 
 from users.forms import ChangePasswordForm, LoginForm, SignupForm
 
@@ -115,3 +116,9 @@ def change_password_view(request):
     return render(
         request, "users/change_password.html", {"user": request.user, "form": form}
     )
+
+
+@require_POST
+def logout_view(request):
+    logout(request)
+    return redirect("/")

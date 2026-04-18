@@ -78,7 +78,10 @@
                         <div class="mt-4">
                             <a href="{% url 'users:change-password' %}" class="btn bg-gradient-info">Change Password</a>
                             <br>
-                            <a href="{% url 'users:logout' %}" class="btn bg-gradient-danger">Log out</a>
+                            <form method="post" action="{% url 'users:logout' %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn bg-gradient-danger">Log out</button>
+                            </form>
                         </div>
                     </div>
                 </div>
