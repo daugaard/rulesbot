@@ -4,11 +4,11 @@ from unittest import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
-from langchain.schema.messages import AIMessage, HumanMessage
 from langchain_community.embeddings.fake import DeterministicFakeEmbedding
 from langchain_community.llms.fake import FakeListLLM, FakeStreamingListLLM
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents.base import Document
+from langchain_core.messages import AIMessage, HumanMessage
 
 from chat.models import ChatSession
 from chat.retrievers.rules_bot_retriever import RulesBotRetriever
@@ -203,9 +203,7 @@ class RulesBotRetrieverTests(TestCase):
             embedding=DeterministicFakeEmbedding(size=1536),
         )
 
-        docs = RulesBotRetriever(
-            index=index, search_kwargs={"k": 3}
-        ).get_relevant_documents("clue")
+        docs = RulesBotRetriever(index=index, search_kwargs={"k": 3}).invoke("clue")
 
         self.assertEqual(len(docs), 3)
         self.assertEqual(docs[0].metadata["page"], 44)
@@ -218,9 +216,9 @@ class RulesBotRetrieverTests(TestCase):
             embedding=DeterministicFakeEmbedding(size=1536),
         )
 
-        docs = RulesBotRetriever(
-            index=index, search_kwargs={"k": 3}
-        ).get_relevant_documents("how many pieces do you start with?")
+        docs = RulesBotRetriever(index=index, search_kwargs={"k": 3}).invoke(
+            "how many pieces do you start with?"
+        )
 
         self.assertEqual(len(docs), 3)  # Still only returns 3 results
         self.assertEqual(
@@ -234,9 +232,9 @@ class RulesBotRetrieverTests(TestCase):
             embedding=DeterministicFakeEmbedding(size=1536),
         )
 
-        docs = RulesBotRetriever(
-            index=index, search_kwargs={"k": 3}
-        ).get_relevant_documents("instructions")
+        docs = RulesBotRetriever(index=index, search_kwargs={"k": 3}).invoke(
+            "instructions"
+        )
 
         self.assertEqual(len(docs), 3)
         self.assertEqual(
@@ -256,9 +254,9 @@ class RulesBotRetrieverTests(TestCase):
             embedding=DeterministicFakeEmbedding(size=1536),
         )
 
-        docs = RulesBotRetriever(
-            index=index, search_kwargs={"k": 3}
-        ).get_relevant_documents("how many pieces do you start with?")
+        docs = RulesBotRetriever(index=index, search_kwargs={"k": 3}).invoke(
+            "how many pieces do you start with?"
+        )
 
         self.assertEqual(len(docs), 3)  # Return 3 results
         # None are a setup page because there are no setup pages

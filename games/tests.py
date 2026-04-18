@@ -150,7 +150,7 @@ class DocumentIngestionServiceTest(TestCase):
                 "games.loaders.pdf_loader_and_summarizer.ChatOpenAI"
             ) as chat_opem_ai_mock:
                 llm = mock.Mock(spec=ChatOpenAI)
-                llm.predict.return_value = "some summarized text"
+                llm.invoke.return_value = mock.Mock(content="some summarized text")
                 chat_opem_ai_mock.return_value = llm
 
                 ingest_document(document)

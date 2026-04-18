@@ -51,7 +51,8 @@ def _valid_pdf(filename):
     Check that the file is a valid PDF file
     """
     try:
-        PdfReader(filename)
+        with open(filename, "rb") as pdf_file:
+            PdfReader(pdf_file)
         return True
     except:
         return False

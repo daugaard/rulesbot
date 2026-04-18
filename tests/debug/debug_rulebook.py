@@ -15,8 +15,8 @@
 
 from multiprocessing import SimpleQueue
 
-from langchain.document_loaders import PyPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from chat.models import ChatSession
 from chat.services import streaming_question_answering_service

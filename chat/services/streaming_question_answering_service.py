@@ -1,10 +1,12 @@
 from enum import Enum, auto
 
-from langchain.callbacks.base import BaseCallbackHandler
-from langchain.chains import create_retrieval_chain
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain.chains.history_aware_retriever import create_history_aware_retriever
-from langchain.schema.messages import AIMessage, HumanMessage
+from langchain_classic.chains import create_retrieval_chain
+from langchain_classic.chains.combine_documents import create_stuff_documents_chain
+from langchain_classic.chains.history_aware_retriever import (
+    create_history_aware_retriever,
+)
+from langchain_core.callbacks.base import BaseCallbackHandler
+from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
 
