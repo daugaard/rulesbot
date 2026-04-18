@@ -142,18 +142,18 @@ class TestViews(TestCase):
         response = self.client.get("/users/account")
         self.assertEqual(response.status_code, 200)
 
-    def test_get_logout_page(self):
-        response = self.client.get("/users/logout")
+    def test_post_logout_page(self):
+        response = self.client.post("/users/logout")
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, "/")
 
-    def test_get_logout_page_after_login(self):
+    def test_post_logout_page_after_login(self):
         User.objects.create_user(username="testuser", email="test", password="test")
         self.client.login(username="testuser", password="test")
         response = self.client.get("/users/account")
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get("/users/logout")
+        response = self.client.post("/users/logout")
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, "/")
 
