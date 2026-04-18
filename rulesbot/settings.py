@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 import sys
+import tempfile
 from pathlib import Path
 
 import environ
@@ -172,6 +173,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "mediafiles")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
+
+if TESTING:
+    MEDIA_ROOT = Path(tempfile.mkdtemp(prefix="rulesbot-test-media-"))
+    STORAGES["default"] = {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "OPTIONS": {"location": MEDIA_ROOT},
+    }
 
 # Configure logging
 LOGGING = {

@@ -15,10 +15,12 @@ class RulesBotRetriever(BaseRetriever):
     index: FAISS
     search_kwargs: dict
 
-    def get_relevant_documents(self, question):
+    def _get_relevant_documents(
+        self, query: str, *, run_manager: CallbackManagerForRetrieverRun
+    ):
         # TODO: Debug relevancy score and figure out if we should filter at a threshold
         docs_with_score = self.index.similarity_search_with_relevance_scores(
-            question, **self.search_kwargs
+            query, **self.search_kwargs
         )
 
         docs = []
@@ -26,7 +28,7 @@ class RulesBotRetriever(BaseRetriever):
             doc.metadata["relevancy_score"] = score
             docs.append(doc)
 
-        if self._is_setup_question(question):
+        if self._is_setup_question(query):
             # If the setup page is not already in the results, add it
             if not any(doc.metadata.get("setup_page") for doc in docs):
                 setup_documents = self.index.similarity_search(
@@ -38,11 +40,6 @@ class RulesBotRetriever(BaseRetriever):
                     docs = docs + setup_documents
 
         return docs
-
-    def _get_relevant_documents(
-        self, query: str, *, run_manager: CallbackManagerForRetrieverRun
-    ):
-        return self.get_relevant_documents(query)
 
     def _is_setup_question(self, question):
         question = question.lower()
