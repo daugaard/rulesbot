@@ -1,6 +1,6 @@
-from langchain.schema import BaseRetriever
 from langchain_community.vectorstores import FAISS
 from langchain_core.callbacks.manager import CallbackManagerForRetrieverRun
+from langchain_core.retrievers import BaseRetriever
 
 
 class RulesBotRetriever(BaseRetriever):
