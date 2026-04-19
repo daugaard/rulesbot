@@ -23,7 +23,7 @@ proxy:
   # Proxy connects to your container on port 80 by default.
   app_port: 5000
   healthcheck:
-    path: /
+    path: /up
 
 # Credentials for your image host.
 registry:

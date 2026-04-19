@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.views import generic
 
@@ -18,3 +19,7 @@ def about_view(request):
 
 def terms_view(request):
     return render(request, "pages/terms.html")
+
+
+def up_view(request):
+    return HttpResponse("ok")

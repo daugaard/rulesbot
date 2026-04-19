@@ -25,6 +25,7 @@ from pages.sitemaps import PagesSitemap
 
 urlpatterns = [
     path("", pages_views.LandingView.as_view(), name="index"),
+    path("up/", pages_views.up_view, name="up"),
     path("about/", pages_views.about_view, name="about"),
     path("terms/", pages_views.terms_view, name="terms"),
     path("games/", include("games.urls")),

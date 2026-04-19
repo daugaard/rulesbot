@@ -50,4 +50,6 @@ ENTRYPOINT ["/app/bin/docker-entrypoint"]
 
 # Run Application
 EXPOSE 5000
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=5 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/up/', timeout=3)" || exit 1
 CMD [ "poetry", "run", "honcho", "start", "web" ]
