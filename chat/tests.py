@@ -8,10 +8,11 @@ from langchain_community.embeddings.fake import DeterministicFakeEmbedding
 from langchain_community.llms.fake import FakeListLLM, FakeStreamingListLLM
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents.base import Document
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import AIMessage, AIMessageChunk, HumanMessage
 
 from chat.models import ChatSession
 from chat.retrievers.rules_bot_retriever import RulesBotRetriever
+from chat.services import agentic_streaming_question_answering_service
 from chat.services.streaming_question_answering_service import (
     QueueSignals,
     _get_chat_history,
@@ -263,3 +264,128 @@ class RulesBotRetrieverTests(TestCase):
         self.assertEqual(
             [doc.metadata.get("setup_page") for doc in docs], [None, None, None]
         )
+
+
+class AgenticStreamingQuestionAnsweringServiceTests(TestCase):
+    def test_ask_question_persists_messages_and_sources(self):
+        game = Game.objects.create(name="Test Game")
+        document = game.document_set.create(display_name="Rulebook", url="some-url")
+        chat_session = ChatSession.objects.create(game=game)
+        test_queue = SimpleQueue()
+
+        source_document = Document(
+            page_content="some content",
+            metadata={"document_id": document.id, "page": 42},
+        )
+
+        with mock.patch(
+            "chat.services.agentic_streaming_question_answering_service._query_agentic_stream"
+        ) as mock_query:
+            mock_query.return_value = {
+                "answer": "some answer to the question",
+                "context": [source_document],
+            }
+
+            agentic_streaming_question_answering_service.ask_question(
+                "What is the meaning of life?", chat_session, test_queue
+            )
+
+        self.assertEqual(chat_session.message_set.count(), 2)
+        self.assertEqual(chat_session.message_set.first().message_type, "human")
+        self.assertEqual(chat_session.message_set.last().message_type, "ai")
+        self.assertEqual(
+            chat_session.message_set.last().message, "some answer to the question"
+        )
+        ai_message = chat_session.message_set.last()
+        self.assertEqual(len(ai_message.sourcedocument_set.all()), 1)
+        self.assertEqual(ai_message.sourcedocument_set.first().document, document)
+        self.assertEqual(ai_message.sourcedocument_set.first().page_number, 43)
+        self.assertEqual(
+            test_queue.get(),
+            agentic_streaming_question_answering_service.QueueSignals.job_done,
+        )
+
+    def test_ask_question_adds_error_signal_on_exception(self):
+        game = Game.objects.create(name="Test Game")
+        chat_session = ChatSession.objects.create(game=game)
+        test_queue = SimpleQueue()
+
+        with mock.patch(
+            "chat.services.agentic_streaming_question_answering_service._query_agentic_stream",
+            side_effect=RuntimeError("boom"),
+        ):
+            with self.assertRaises(RuntimeError):
+                agentic_streaming_question_answering_service.ask_question(
+                    "What happened?", chat_session, test_queue
+                )
+
+        self.assertEqual(
+            test_queue.get(),
+            agentic_streaming_question_answering_service.QueueSignals.error,
+        )
+
+    def test_stream_agent_answer_enqueues_text_tokens(self):
+        game = Game.objects.create(name="Test Game")
+        chat_session = ChatSession.objects.create(game=game)
+        test_queue = SimpleQueue()
+
+        class FakeAgent:
+            def stream(self, *args, **kwargs):
+                return [
+                    {
+                        "type": "messages",
+                        "data": (AIMessageChunk(content="some "), {}),
+                    },
+                    {
+                        "type": "messages",
+                        "data": (AIMessageChunk(content="answer"), {}),
+                    },
+                    {
+                        "type": "updates",
+                        "data": {
+                            "model": {
+                                "messages": [AIMessage(content="some answer")],
+                            }
+                        },
+                    },
+                ]
+
+        answer = agentic_streaming_question_answering_service._stream_agent_answer(
+            FakeAgent(),
+            "What is the meaning of life?",
+            chat_session,
+            test_queue,
+        )
+
+        self.assertEqual(answer, "some answer")
+        self.assertEqual(test_queue.get(), "some ")
+        self.assertEqual(test_queue.get(), "answer")
+
+    @prevent_warnings
+    def test_rulebook_search_tool_returns_context_and_tracks_documents(self):
+        game = Game.objects.create(name="Test Game")
+        document = game.document_set.create(display_name="Rulebook", url="some-url")
+        chat_session = ChatSession.objects.create(game=game)
+
+        chat_session.game.vector_store.add_documents(
+            [
+                Document(
+                    page_content="Clue game instructions",
+                    metadata={"page": 4},
+                )
+            ],
+            document_id=document.id,
+        )
+
+        retrieved_documents = []
+        rulebook_search_tool = (
+            agentic_streaming_question_answering_service._build_rulebook_search_tool(
+                chat_session, retrieved_documents
+            )
+        )
+
+        result = rulebook_search_tool.invoke({"query": "clue"})
+
+        self.assertIn("Passage 1", result)
+        self.assertEqual(len(retrieved_documents), 1)
+        self.assertEqual(retrieved_documents[0].metadata["document_id"], document.id)

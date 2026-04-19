@@ -10,7 +10,7 @@ from django.views import generic
 from ads.services import serve_ad_with_impression
 from chat.forms import ChatForm
 from chat.models import ChatSession
-from chat.services import streaming_question_answering_service
+from chat.services import agentic_streaming_question_answering_service
 from games.models import Game
 
 
@@ -116,15 +116,17 @@ def ask_question_streaming(request, session_slug):
         while True:
             result = response_queue.get()
             if (
-                result is streaming_question_answering_service.QueueSignals.job_done
-                or result is streaming_question_answering_service.QueueSignals.error
+                result
+                is agentic_streaming_question_answering_service.QueueSignals.job_done
+                or result
+                is agentic_streaming_question_answering_service.QueueSignals.error
             ):
                 break
             yield result
 
     # run the async ask question function in a thread
     qa_thread = Thread(
-        target=streaming_question_answering_service.ask_question,
+        target=agentic_streaming_question_answering_service.ask_question,
         args=(question, chat_session, response_queue),
     )
     qa_thread.start()
