@@ -5,6 +5,8 @@ The script is run from the command line.
 
 Usage:
     python evaluate_rulesbot.py
+    python evaluate_rulesbot.py path/to/fixture.json
+    python evaluate_rulesbot.py --legacy
 
 The script will output a table of results to the console.
 
@@ -35,7 +37,7 @@ Test data is specified in the fixtures/evaluate_rulesbot/*.json files. One file 
 """
 import json
 import os
-import sys
+from argparse import ArgumentParser
 from multiprocessing import SimpleQueue
 from pathlib import Path
 
@@ -48,6 +50,7 @@ django.setup()
 from colorama import Fore, Style  # noqa: E402
 
 from chat.models import ChatSession  # noqa: E402
+from chat.services import agentic_streaming_question_answering_service  # noqa: E402
 from chat.services import streaming_question_answering_service  # noqa: E402
 from games.models import Game  # noqa: E402
 from games.services import document_ingestion_service  # noqa: E402
@@ -97,7 +100,11 @@ def clean_up_game(game: Game) -> None:
 
 
 def evaluate_question(
-    session: ChatSession, question: str, answer: str, description: str
+    session: ChatSession,
+    question: str,
+    answer: str,
+    description: str,
+    qa_service,
 ) -> bool:
     # TODO: Change to use langchain evalutor eventually.
     # evaluator = load_evaluator("labeled_criteria", criteria="correctness")
@@ -113,7 +120,7 @@ def evaluate_question(
     queue = (
         SimpleQueue()
     )  # Ignore the queue and just return the result by reading the message set
-    streaming_question_answering_service.ask_question(question, session, queue)
+    qa_service.ask_question(question, session, queue)
 
     bot_answer = session.message_set.filter(message_type="ai").last().message
 
@@ -135,7 +142,7 @@ def evaluate_question(
     return eval_result["score"]
 
 
-def run_fixture_file(filename: Path) -> None:
+def run_fixture_file(filename: Path, qa_service) -> None:
     print(Fore.CYAN + f"Running fixture file: {filename}" + Style.RESET_ALL)
     fixture_object = parse_game_json(filename)
     game = setup_game(fixture_object)
@@ -150,6 +157,7 @@ def run_fixture_file(filename: Path) -> None:
             question=question_session["question"],
             answer=question_session["answer"],
             description=question_session["description"],
+            qa_service=qa_service,
         )
         total_correct += score
 
@@ -160,7 +168,7 @@ def run_fixture_file(filename: Path) -> None:
     return total_correct, total_questions
 
 
-def run_tests() -> None:
+def run_tests(qa_service) -> None:
     # List all files in the fixtures/evaluate_rulesbot directory
     test_files = (
         Path(__file__).parent.joinpath("fixtures", "evaluate_rulesbot").glob("*.json")
@@ -170,7 +178,7 @@ def run_tests() -> None:
     total_questions = 0
 
     for test_file in test_files:
-        correct, questions = run_fixture_file(test_file)
+        correct, questions = run_fixture_file(test_file, qa_service)
         total_correct += correct
         total_questions += questions
 
@@ -183,11 +191,33 @@ def run_tests() -> None:
 
 
 if __name__ == "__main__":
-    # get if there is an arg for a specific test file
-    # if so, run that test file
-    # else, run all test files
-    if len(sys.argv) > 1:
-        test_file = Path(sys.argv[1])
-        run_fixture_file(test_file)
+    parser = ArgumentParser()
+    parser.add_argument(
+        "fixture",
+        nargs="?",
+        type=Path,
+        help="Optional fixture path to run. If omitted, all fixtures are run.",
+    )
+    parser.add_argument(
+        "--legacy",
+        action="store_true",
+        help="Use legacy non-agentic streaming question answering service.",
+    )
+    args = parser.parse_args()
+
+    qa_service = (
+        streaming_question_answering_service
+        if args.legacy
+        else agentic_streaming_question_answering_service
+    )
+
+    print(
+        Fore.CYAN
+        + f"Using QA service: {'legacy' if args.legacy else 'agentic'}"
+        + Style.RESET_ALL
+    )
+
+    if args.fixture is not None:
+        run_fixture_file(args.fixture, qa_service)
     else:
-        run_tests()
+        run_tests(qa_service)
